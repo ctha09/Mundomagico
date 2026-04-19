@@ -2,8 +2,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // 1. CONFIGURACIÓN INICIAL
 // Reemplaza con tus datos de Supabase (Project Settings > API)
-const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
-const supabaseKey = 'TU_ANON_KEY';
+const supabaseUrl = 'https://zvmcjmjbedwaftejdduu.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Identificador para separar esta tienda de otros futuros clientes
