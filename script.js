@@ -1,14 +1,14 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 // 1. CONFIGURACIÓN INICIAL
-// Reemplaza con tus datos de Supabase (Project Settings > API)
-const supabaseUrl = 'https://zvmcjmjbedwaftejdduu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k';
+// Asegúrate de que estos datos coincidan exactamente con tu panel de Supabase
+const supabaseUrl = 'https://zvmcjmjbedwaftejdduu.supabase.co'; // Tu URL real
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k'; // Tu Key real
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Identificador para separar esta tienda de otros futuros clientes
 const TIENDA_ID = 'mundo_magico';
-const PASS_ADMIN = '1234'; // Cambia esta contraseña por la que desees
+const PASS_ADMIN = '1234'; 
 
 let isAdmin = false;
 
@@ -16,39 +16,50 @@ let isAdmin = false;
  * CARGAR PRODUCTOS: Trae los datos de la tabla y los dibuja en el HTML
  */
 async function cargarProductos() {
-    const { data: productos, error } = await supabase
-        .from('productos')
-        .select('*')
-        .eq('tienda_id', TIENDA_ID)
-        .order('created_at', { ascending: false });
+    try {
+        const { data: productos, error } = await supabase
+            .from('productos')
+            .select('*')
+            .eq('tienda_id', TIENDA_ID)
+            .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error("Error cargando productos:", error.message);
-        return;
-    }
+        if (error) {
+            console.error("Error de conexión con Supabase:", error.message);
+            return;
+        }
 
-    const contenedor = document.getElementById('catalogo');
-    contenedor.innerHTML = '';
+        const contenedor = document.getElementById('catalogo');
+        if (!contenedor) return;
+        
+        contenedor.innerHTML = '';
 
-    productos.forEach(p => {
-        contenedor.innerHTML += `
-            <div class="card">
-                <img src="${p.imagen_url}" alt="${p.nombre}">
-                <div class="card-info">
-                    <h3>${p.nombre}</h3>
-                    <p class="desc">${p.descripcion || 'Sin descripción'}</p>
-                    <p class="precio">$${p.precio}</p>
-                    
-                    ${isAdmin ? `
-                        <div style="border-top: 1px solid #334155; padding-top: 10px; margin-top: 10px; display: flex; gap: 10px;">
-                            <button onclick="window.editarProd('${p.id}', '${p.nombre}', ${p.precio})" style="background:#f59e0b; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Editar</button>
-                            <button onclick="window.borrarProd('${p.id}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Borrar</button>
+        // Verificamos que 'productos' no sea null antes de usar forEach
+        if (productos && productos.length > 0) {
+            productos.forEach(p => {
+                contenedor.innerHTML += `
+                    <div class="card">
+                        <img src="${p.imagen_url}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300x200?text=Sin+Imagen'">
+                        <div class="card-info">
+                            <h3>${p.nombre}</h3>
+                            <p class="desc">${p.descripcion || 'Sin descripción'}</p>
+                            <p class="precio">$${p.precio}</p>
+                            
+                            ${isAdmin ? `
+                                <div style="border-top: 1px solid #334155; padding-top: 10px; margin-top: 10px; display: flex; gap: 10px;">
+                                    <button onclick="window.editarProd('${p.id}', '${p.nombre}', ${p.precio})" style="background:#f59e0b; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Editar</button>
+                                    <button onclick="window.borrarProd('${p.id}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Borrar</button>
+                                </div>
+                            ` : ''}
                         </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    });
+                    </div>
+                `;
+            });
+        } else {
+            contenedor.innerHTML = '<p style="text-align:center; color:#94a3b8;">No hay productos publicados.</p>';
+        }
+    } catch (err) {
+        console.error("Error inesperado:", err);
+    }
 }
 
 /**
@@ -100,7 +111,7 @@ async function subirProducto() {
 
         alert("¡Producto añadido con éxito!");
         
-        // Limpiar formulario y recargar
+        // Limpiar campos
         document.getElementById('nombre-nuevo').value = '';
         document.getElementById('precio-nuevo').value = '';
         document.getElementById('desc-nuevo').value = '';
@@ -108,16 +119,14 @@ async function subirProducto() {
         cargarProductos();
 
     } catch (err) {
-        alert("Error: " + err.message);
+        alert("Error al subir: " + err.message);
     } finally {
         btn.innerText = "Guardar en Catálogo";
         btn.disabled = false;
     }
 }
 
-/**
- * FUNCIONES ADMINISTRATIVAS (BORRAR Y EDITAR)
- */
+// --- FUNCIONES GLOBALES PARA EL MODO ADMIN ---
 window.borrarProd = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este producto?")) {
         const { error } = await supabase.from('productos').delete().eq('id', id);
@@ -141,32 +150,31 @@ window.editarProd = async (id, nombreActual, precioActual) => {
     }
 };
 
-/**
- * LÓGICA DE ACCESO (MODAL Y CONTRASEÑA)
- */
-document.getElementById('open-login').onclick = () => {
-    document.getElementById('modal-login').style.display = 'flex';
-};
+// --- LÓGICA DE INTERFAZ (BOTONES Y MODAL) ---
+document.addEventListener('DOMContentLoaded', () => {
+    cargarProductos();
 
-document.getElementById('btn-cerrar').onclick = () => {
-    document.getElementById('modal-login').style.display = 'none';
-};
+    const openBtn = document.getElementById('open-login');
+    const closeBtn = document.getElementById('btn-cerrar');
+    const loginBtn = document.getElementById('btn-entrar');
+    const subirBtn = document.getElementById('btn-subir');
 
-document.getElementById('btn-entrar').onclick = () => {
-    const inputPass = document.getElementById('pass-input').value;
-    if (inputPass === PASS_ADMIN) {
-        isAdmin = true;
-        document.getElementById('panel-admin').style.display = 'block';
-        document.getElementById('modal-login').style.display = 'none';
-        alert("Modo administrador activado");
-        cargarProductos(); // Recargamos para que se vean los botones de editar/borrar
-    } else {
-        alert("Contraseña incorrecta");
+    if (openBtn) openBtn.onclick = () => document.getElementById('modal-login').style.display = 'flex';
+    if (closeBtn) closeBtn.onclick = () => document.getElementById('modal-login').style.display = 'none';
+    
+    if (loginBtn) {
+        loginBtn.onclick = () => {
+            const inputPass = document.getElementById('pass-input').value;
+            if (inputPass === PASS_ADMIN) {
+                isAdmin = true;
+                document.getElementById('panel-admin').style.display = 'block';
+                document.getElementById('modal-login').style.display = 'none';
+                cargarProductos();
+            } else {
+                alert("Contraseña incorrecta");
+            }
+        };
     }
-};
 
-// Vinculamos el botón de subida
-document.getElementById('btn-subir').onclick = subirProducto;
-
-// Ejecutar carga inicial al abrir la página
-document.addEventListener('DOMContentLoaded', cargarProductos);
+    if (subirBtn) subirBtn.onclick = subirProducto;
+});
