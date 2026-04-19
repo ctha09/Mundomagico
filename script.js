@@ -1,29 +1,21 @@
-/**
- * ARCHIVO: tienda-logic.js
- * Este archivo maneja la conexión con Supabase, la subida de imágenes
- * y la visualización de productos filtrados por tienda.
- */
-
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-// 1. CONFIGURACIÓN
-// Reemplaza con los datos de tu proyecto en: Settings > API
-const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
-const SUPABASE_KEY = 'TU_ANON_KEY';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+// 1. CONFIGURACIÓN INICIAL
+// Reemplaza con tus datos de Supabase (Project Settings > API)
+const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
+const supabaseKey = 'TU_ANON_KEY';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 2. IDENTIFICADOR ÚNICO DE ESTA TIENDA
-// Cambia este valor cuando crees una web para un cliente nuevo
+// Identificador para separar esta tienda de otros futuros clientes
 const TIENDA_ID = 'mundo_magico';
+const PASS_ADMIN = '1234'; // Cambia esta contraseña por la que desees
+
+let isAdmin = false;
 
 /**
- * Función para obtener y mostrar los productos en el HTML
+ * CARGAR PRODUCTOS: Trae los datos de la tabla y los dibuja en el HTML
  */
-async function mostrarCatalogo() {
-    const contenedor = document.getElementById('contenedor-productos');
-    if (!contenedor) return;
-
-    // Consultamos la tabla 'productos' filtrando por el ID de esta tienda
+async function cargarProductos() {
     const { data: productos, error } = await supabase
         .from('productos')
         .select('*')
@@ -31,28 +23,28 @@ async function mostrarCatalogo() {
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error("Error al obtener productos:", error.message);
+        console.error("Error cargando productos:", error.message);
         return;
     }
 
-    // Limpiamos el contenedor
+    const contenedor = document.getElementById('catalogo');
     contenedor.innerHTML = '';
 
-    // Si no hay productos, mostramos un mensaje
-    if (productos.length === 0) {
-        contenedor.innerHTML = '<p style="color: #94a3b8;">No hay productos disponibles por ahora.</p>';
-        return;
-    }
-
-    // Dibujamos cada producto en la pantalla
-    productos.forEach(prod => {
+    productos.forEach(p => {
         contenedor.innerHTML += `
-            <div class="producto-card">
-                <img src="${prod.imagen_url}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
-                <div class="info">
-                    <h3>${prod.nombre}</h3>
-                    <p class="precio">$${prod.precio}</p>
-                    <small style="color: #64748b;">ID: ${TIENDA_ID}</small>
+            <div class="card">
+                <img src="${p.imagen_url}" alt="${p.nombre}">
+                <div class="card-info">
+                    <h3>${p.nombre}</h3>
+                    <p class="desc">${p.descripcion || 'Sin descripción'}</p>
+                    <p class="precio">$${p.precio}</p>
+                    
+                    ${isAdmin ? `
+                        <div style="border-top: 1px solid #334155; padding-top: 10px; margin-top: 10px; display: flex; gap: 10px;">
+                            <button onclick="window.editarProd('${p.id}', '${p.nombre}', ${p.precio})" style="background:#f59e0b; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Editar</button>
+                            <button onclick="window.borrarProd('${p.id}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Borrar</button>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -60,79 +52,121 @@ async function mostrarCatalogo() {
 }
 
 /**
- * Función para subir una imagen al Storage y registrar el producto
+ * SUBIR PRODUCTO: Lógica para subir foto al Storage e insertar en la tabla
  */
-async function crearProducto() {
-    const inputNombre = document.getElementById('nombre');
-    const inputPrecio = document.getElementById('precio');
-    const inputFoto = document.getElementById('foto');
-    const btnSubir = document.getElementById('btn-subir');
+async function subirProducto() {
+    const nombre = document.getElementById('nombre-nuevo').value;
+    const precio = document.getElementById('precio-nuevo').value;
+    const desc = document.getElementById('desc-nuevo').value;
+    const fileInput = document.getElementById('foto-nueva');
+    const file = fileInput.files[0];
 
-    // Validaciones básicas
-    if (!inputNombre.value || !inputPrecio.value || !inputFoto.files[0]) {
-        alert("¡Faltan datos! Asegúrate de poner nombre, precio y elegir una foto.");
-        return;
+    if (!nombre || !precio || !file) {
+        return alert("Por favor, completa nombre, precio y selecciona una imagen.");
     }
 
-    const file = inputFoto.files[0];
-    btnSubir.innerText = "Procesando...";
-    btnSubir.disabled = true;
+    const btn = document.getElementById('btn-subir');
+    btn.innerText = "Subiendo...";
+    btn.disabled = true;
 
     try {
-        // A. Subir la imagen al Storage (Bucket: imagenes_tiendas)
-        // Creamos un nombre de archivo único para evitar conflictos
-        const nombreLimpio = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
-        const pathArchivo = `${TIENDA_ID}/${Date.now()}_${nombreLimpio}`;
+        // 1. Subir al Storage (Bucket: imagenes_tiendas)
+        const nombreArchivo = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+        const path = `${TIENDA_ID}/${nombreArchivo}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { data: storageData, error: storageError } = await supabase.storage
             .from('imagenes_tiendas')
-            .upload(pathArchivo, file);
+            .upload(path, file);
 
-        if (uploadError) throw uploadError;
+        if (storageError) throw storageError;
 
-        // B. Obtener la URL pública de la imagen recién subida
+        // 2. Obtener URL pública
         const { data: urlData } = supabase.storage
             .from('imagenes_tiendas')
-            .getPublicUrl(pathArchivo);
+            .getPublicUrl(path);
 
-        const publicUrl = urlData.publicUrl;
-
-        // C. Insertar los datos en la tabla 'productos'
+        // 3. Insertar en la tabla productos
         const { error: dbError } = await supabase
             .from('productos')
             .insert([{
-                nombre: inputNombre.value,
-                precio: parseFloat(inputPrecio.value),
-                imagen_url: publicUrl,
+                nombre: nombre,
+                precio: parseFloat(precio),
+                descripcion: desc,
+                imagen_url: urlData.publicUrl,
                 tienda_id: TIENDA_ID
             }]);
 
         if (dbError) throw dbError;
 
-        // D. Éxito: Limpiar formulario y recargar lista
-        alert("¡Producto agregado correctamente!");
-        inputNombre.value = '';
-        inputPrecio.value = '';
-        inputFoto.value = '';
-        mostrarCatalogo();
+        alert("¡Producto añadido con éxito!");
+        
+        // Limpiar formulario y recargar
+        document.getElementById('nombre-nuevo').value = '';
+        document.getElementById('precio-nuevo').value = '';
+        document.getElementById('desc-nuevo').value = '';
+        fileInput.value = '';
+        cargarProductos();
 
     } catch (err) {
-        console.error("Error completo:", err);
         alert("Error: " + err.message);
     } finally {
-        btnSubir.innerText = "Subir Producto";
-        btnSubir.disabled = false;
+        btn.innerText = "Guardar en Catálogo";
+        btn.disabled = false;
     }
 }
 
-// 3. INICIALIZACIÓN
-document.addEventListener('DOMContentLoaded', () => {
-    // Cargamos los productos apenas abre la página
-    mostrarCatalogo();
-
-    // Vinculamos el botón de subir con la función
-    const btnSubir = document.getElementById('btn-subir');
-    if (btnSubir) {
-        btnSubir.addEventListener('click', crearProducto);
+/**
+ * FUNCIONES ADMINISTRATIVAS (BORRAR Y EDITAR)
+ */
+window.borrarProd = async (id) => {
+    if (confirm("¿Seguro que quieres eliminar este producto?")) {
+        const { error } = await supabase.from('productos').delete().eq('id', id);
+        if (!error) cargarProductos();
+        else alert("Error al eliminar.");
     }
-});
+};
+
+window.editarProd = async (id, nombreActual, precioActual) => {
+    const n = prompt("Nuevo nombre:", nombreActual);
+    const p = prompt("Nuevo precio:", precioActual);
+    
+    if (n && p) {
+        const { error } = await supabase
+            .from('productos')
+            .update({ nombre: n, precio: parseFloat(p) })
+            .eq('id', id);
+        
+        if (!error) cargarProductos();
+        else alert("Error al editar.");
+    }
+};
+
+/**
+ * LÓGICA DE ACCESO (MODAL Y CONTRASEÑA)
+ */
+document.getElementById('open-login').onclick = () => {
+    document.getElementById('modal-login').style.display = 'flex';
+};
+
+document.getElementById('btn-cerrar').onclick = () => {
+    document.getElementById('modal-login').style.display = 'none';
+};
+
+document.getElementById('btn-entrar').onclick = () => {
+    const inputPass = document.getElementById('pass-input').value;
+    if (inputPass === PASS_ADMIN) {
+        isAdmin = true;
+        document.getElementById('panel-admin').style.display = 'block';
+        document.getElementById('modal-login').style.display = 'none';
+        alert("Modo administrador activado");
+        cargarProductos(); // Recargamos para que se vean los botones de editar/borrar
+    } else {
+        alert("Contraseña incorrecta");
+    }
+};
+
+// Vinculamos el botón de subida
+document.getElementById('btn-subir').onclick = subirProducto;
+
+// Ejecutar carga inicial al abrir la página
+document.addEventListener('DOMContentLoaded', cargarProductos);
