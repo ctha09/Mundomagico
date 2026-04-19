@@ -1,111 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>URBAN SOCIETY | Stock Room</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <title>LA BARRICA - Software de Gestión Comercial</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-content">
-            <h1 class="loader-logo">URBAN_SOCIETY</h1>
-            <div class="progress-container">
-                <div class="progress-bar"></div>
-            </div>
-            <p class="loader-text">VERIFICANDO STOCK...</p>
-        </div>
-    </div>
-
-    <header>
-        <div class="logo">URBAN_SOCIETY</div>
-        <a href="#" class="contact-btn" onclick="toggleCart()">MI CARRITO</a>
-    </header>
-
-    <section class="carousel-container">
-        <div class="carousel-inner" id="carousel">
-            <div class="slide s1"><h2>NUEVA COLECCIÓN</h2></div>
-            <div class="slide s2"><h2>LIMITLESS_2026</h2></div>
-            <div class="slide s3"><h2>OFF SEASON</h2></div>
-        </div>
-    </section>
-
-    <div class="container">
-        <h2 class="section-title">Stock Disponible</h2>
-        
-        <div class="grid">
-            <div class="card animate__animated animate__fadeInUp" data-name="Heavy Black Hoodie" data-price="55.00">
-                <div class="stock-badge">EN STOCK</div>
-                <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600" alt="Hoodie">
-                <div class="card-info">
-                    <h3>Heavy Black Hoodie</h3>
-                    <p>Algodón 100% - Corte Oversized premium.</p>
-                    <span class="price">$55.00</span>
-                    <button class="add-btn">AGREGAR</button>
-                </div>
-            </div>
-
-            <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;" data-name="Cyberpunk Tee" data-price="32.00">
-                <div class="stock-badge special">ÚLTIMAS UNIDADES</div>
-                <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=600" alt="Tee">
-                <div class="card-info">
-                    <h3>Cyberpunk Tee</h3>
-                    <p>Estampado reflectivo en espalda.</p>
-                    <span class="price">$32.00</span>
-                    <button class="add-btn">AGREGAR</button>
-                </div>
-            </div>
-            
-            </div>
-    </div>
-
-    <nav class="bottom-nav">
-        <div class="nav-item" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-label">INICIO</span>
-        </div>
-        <div class="nav-item" onclick="toggleCart()">
-            <div class="cart-icon-wrapper">
-                <span id="cart-count">0</span>
-                <span class="nav-icon">🛒</span>
-            </div>
-            <span class="nav-label">CARRITO</span>
-        </div>
+    <nav class="text-menu">
+        <ul>
+            <li>Archivo</li><li>Consultas</li><li>Gestión</li><li>Cuentas Corrientes</li><li>Búsqueda</li><li>Seguridad</li><li>Salir</li>
+        </ul>
     </nav>
 
-    <div id="cart-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="toggleCart()">&times;</span>
-            <h2 class="section-title">TU PEDIDO</h2>
-            <div id="cart-items">
+    <section class="toolbar">
+        <button class="tool-btn" onclick="abrirArticulos()"><i class="fas fa-box icon-blue"></i><span>Artículos [F1]</span></button>
+        <button class="tool-btn"><i class="fas fa-truck icon-red"></i><span>Proveedores [F2]</span></button>
+        <button class="tool-btn"><i class="fas fa-users icon-green"></i><span>Clientes [F3]</span></button>
+        <button class="tool-btn"><i class="fas fa-user-shield icon-purple"></i><span>Usuarios [F4]</span></button>
+        <button class="tool-btn"><i class="fas fa-shopping-cart icon-dark-green"></i><span>Compras [F5]</span></button>
+        <button class="tool-btn" onclick="abrirVentas()"><i class="fas fa-cash-register icon-light-blue"></i><span>Ventas [F6]</span></button>
+        <button class="tool-btn exit" onclick="alert('Cerrando Sesión...')"><i class="fas fa-power-off icon-red"></i><span>Salir [F12]</span></button>
+    </section>
+
+    <main class="desktop-area">
+        <div class="main-logo">
+            <h1 class="brand-text">Stock<span>Facil</span></h1>
+            <p>VP Sistemas & Servicios</p>
+        </div>
+    </main>
+
+    <div id="modal-ventas" class="modal-overlay">
+        <div class="modal-window modal-lg">
+            <div class="modal-header">
+                <span><i class="fas fa-cash-register"></i> Ventas</span>
+                <button onclick="cerrarVentas()" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <fieldset class="form-container">
+                    <legend>Datos de la Venta</legend>
+                    <div class="form-grid">
+                        <div class="form-group span-4"><label>Cliente</label>
+                            <div class="input-with-btn"><input type="text" value="CONSUMIDOR FINAL"><button class="small-action-btn"><i class="fas fa-search"></i></button></div>
+                        </div>
+                        <div class="form-group span-3"><label>Comprobante</label><select><option>REMITO X</option><option>FACTURA C</option></select></div>
+                        <div class="form-group span-2"><label>Nº Venta</label><input type="text" value="9243" readonly></div>
+                        <div class="form-group span-3"><label>Fecha</label><input type="text" id="fecha-venta" readonly></div>
+                    </div>
+                </fieldset>
+
+                <div class="table-container large-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="15%">Código</th><th width="12%">Cant/Peso</th><th width="43%">Detalle</th>
+                                <th width="10%">Precio</th><th width="10%">Dto</th><th width="10%">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-ventas-items"></tbody>
+                    </table>
                 </div>
-            <div class="cart-footer">
-                <div class="cart-total">TOTAL: <span id="total-price">$0.00</span></div>
-                <button class="whatsapp-btn" onclick="sendWhatsApp()">FINALIZAR POR WHATSAPP</button>
+
+                <div class="purchase-footer">
+                    <div class="purchase-actions">
+                        <button class="action-btn-large" onclick="cerrarVentas()"><i class="fas fa-times icon-red"></i> Cancelar [F5]</button>
+                        <button class="action-btn-large" onclick="alert('Venta Guardada')"><i class="fas fa-check icon-green"></i> Guardar [F2]</button>
+                        <button class="action-btn-large" onclick="abrirBuscadorManual()"><i class="fas fa-plus icon-blue"></i> Agregar [F4]</button>
+                    </div>
+                    <div class="barcode-section">
+                        <label>Artículo (Código de Barras)</label>
+                        <input type="text" id="lector-barras" class="barcode-input" placeholder="Escanee producto..." onkeydown="manejarLector(event)">
+                    </div>
+                    <div class="totals-panel">
+                        <div class="total-big-black">
+                            <span class="total-label">Total</span>
+                            <span class="total-amount" id="total-final">$0.00</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="modal-buscador" class="modal-overlay">
+        <div class="modal-window" style="width: 600px;">
+            <div class="modal-header"><span>Seleccionar Artículo</span><button onclick="cerrarBuscadorManual()" class="close-btn">×</button></div>
+            <div class="modal-body">
+                <div class="table-container" style="height: 200px;">
+                    <table>
+                        <thead><tr><th>Código</th><th>Detalle</th><th>Precio</th></tr></thead>
+                        <tbody id="lista-busqueda-manual"></tbody>
+                    </table>
+                </div>
+                <button class="exit-inner-btn" onclick="cerrarBuscadorManual()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="status-bar">
+        <div>www.vpsistemas.com</div><div>VP Sistemas & Servicios</div><div id="clock">00:00:00</div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
-</html>
-    <script  src="./script.js"></script>
-
-  </body>
-  
 </html>
