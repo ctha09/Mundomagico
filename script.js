@@ -1,139 +1,116 @@
-let carritoVentas = [];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const DB_ALMACENAMIENTO = [
-    { cod: '00087', det: 'PELON KG', pr: 10500 },
-    { cod: '7791813444381', det: '7UP 2.25L', pr: 2200 },
-    { cod: '00010', det: 'PAPA NEGRA KG', pr: 800 },
-    { cod: '7790000000123', det: 'GALLETITAS OREO', pr: 1500 }
-];
+// 1. CONFIGURACIÓN DE TU FIREBASE (Basada en tu imagen)
+const firebaseConfig = {
+    apiKey: "AIzaSyAnxydDNTP15DqDKBfM8CEU1j42kwxrjjc",
+    authDomain: "mundo-magico-c2476.firebaseapp.com",
+    projectId: "mundo-magico-c2476",
+    storageBucket: "mundo-magico-c2476.firebasestorage.app",
+    messagingSenderId: "659897627792",
+    appId: "1:659897627792:web:602377c729525164d1f56b"
+};
 
-// --- NAVEGACIÓN ---
-function abrirVentas() {
-    document.getElementById('modal-ventas').style.display = 'flex';
-    document.getElementById('fecha-venta').value = new Date().toLocaleDateString();
-    resetFocus();
-}
+// 2. INICIALIZACIÓN
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const colRef = collection(db, "productos");
 
-function cerrarVentas() {
-    document.getElementById('modal-ventas').style.display = 'none';
-}
+// 3. LÓGICA DEL PANEL DE ADMINISTRACIÓN (MODAL)
+const modal = document.getElementById('admin-modal');
+const openBtn = document.getElementById('open-admin');
+const closeBtn = document.getElementById('close-admin');
 
-function abrirBuscadorManual() {
-    document.getElementById('modal-buscador').style.display = 'flex';
-    const tbody = document.getElementById('lista-busqueda-manual');
-    tbody.innerHTML = '';
-    DB_ALMACENAMIENTO.forEach(p => {
-        tbody.innerHTML += `
-            <tr onclick="seleccionarArticuloManual('${p.cod}')" style="cursor:pointer">
-                <td>${p.cod}</td>
-                <td>${p.det}</td>
-                <td>$${p.pr}</td>
-            </tr>`;
+// Abrir modal al tocar la tuerca
+openBtn.onclick = () => {
+    modal.style.display = 'flex';
+};
+
+// Cerrar modal al tocar la X
+closeBtn.onclick = () => {
+    modal.style.display = 'none';
+};
+
+// Cerrar modal si se toca fuera de la caja blanca
+window.onclick = (event) => {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// 4. FUNCIÓN PARA PUBLICAR UNA PRENDA NUEVA
+const btnAdd = document.getElementById('btn-add');
+btnAdd.onclick = async () => {
+    const nombre = document.getElementById('p-nombre').value;
+    const precio = document.getElementById('p-precio').value;
+    const imagen = document.getElementById('p-img').value;
+
+    // Validación simple
+    if (nombre && precio && imagen) {
+        try {
+            await addDoc(colRef, {
+                nombre: nombre,
+                precio: precio,
+                imagen: imagen,
+                fecha: Date.now() // Guardamos la fecha para ordenar los más nuevos primero
+            });
+            
+            // Limpiar formulario y cerrar
+            document.getElementById('p-nombre').value = "";
+            document.getElementById('p-precio').value = "";
+            document.getElementById('p-img').value = "";
+            modal.style.display = 'none';
+            
+            alert("¡Prenda publicada con éxito en Mundo Mágico!");
+        } catch (error) {
+            console.error("Error al subir:", error);
+            alert("Error al conectar con la base de datos.");
+        }
+    } else {
+        alert("Por favor, rellena todos los campos.");
+    }
+};
+
+// 5. CARGAR PRODUCTOS DESDE FIREBASE EN TIEMPO REAL
+// Usamos onSnapshot para que si agregas algo desde otro celular, se vea al instante
+const q = query(colRef, orderBy("fecha", "desc"));
+onSnapshot(q, (snapshot) => {
+    const grid = document.getElementById('product-grid');
+    grid.innerHTML = ""; // Limpiamos la cuadrícula antes de recargar
+    
+    snapshot.forEach((doc) => {
+        const p = doc.data();
+        // Creamos la tarjeta del producto (diseño de 2 columnas en móvil)
+        grid.innerHTML += `
+            <div class="card animate__animated animate__fadeInUp">
+                <img src="${p.imagen}" alt="${p.nombre}">
+                <div class="card-info">
+                    <h3>${p.nombre}</h3>
+                    <span class="price">$${p.precio}</span>
+                </div>
+            </div>
+        `;
     });
-}
-
-function cerrarBuscadorManual() {
-    document.getElementById('modal-buscador').style.display = 'none';
-    resetFocus();
-}
-
-function seleccionarArticuloManual(codigo) {
-    const producto = DB_ALMACENAMIENTO.find(p => p.cod === codigo);
-    if(producto) {
-        agregarAlCarrito(producto, 1, false);
-        cerrarBuscadorManual();
-    }
-}
-
-// --- LÓGICA DEL LECTOR ---
-function manejarLector(e) {
-    if (e.key === 'Enter') {
-        const input = e.target.value.trim();
-        if (!input) return;
-
-        let codigoBuscar = input;
-        let cantidad = 1;
-        let esPesable = false;
-
-        // Procesar código Systel (Balanza) - Ejemplo: 20 00010 00800 5
-        if (input.length === 13 && input.startsWith('20')) {
-            esPesable = true;
-            codigoBuscar = input.substring(2, 7); 
-            cantidad = parseFloat(input.substring(7, 12)) / 1000;
-        }
-
-        const producto = DB_ALMACENAMIENTO.find(p => p.cod === codigoBuscar);
-
-        if (producto) {
-            agregarAlCarrito(producto, cantidad, esPesable);
-        } else {
-            alert("Producto no encontrado: " + codigoBuscar);
-        }
-
-        e.target.value = ''; 
-        resetFocus();        
-    }
-}
-
-function resetFocus() {
-    setTimeout(() => {
-        const lector = document.getElementById('lector-barras');
-        if (lector) lector.focus();
-    }, 10);
-}
-
-function agregarAlCarrito(prod, cant, pesable) {
-    if (!pesable) {
-        const existe = carritoVentas.find(i => i.cod === prod.cod && !i.esPesable);
-        if (existe) {
-            existe.cant += 1;
-            actualizarTablaVentas();
-            return;
-        }
-    }
-    carritoVentas.push({ ...prod, cant: cant, esPesable: pesable });
-    actualizarTablaVentas();
-}
-
-function actualizarTablaVentas() {
-    const tbody = document.getElementById('lista-ventas-items');
-    tbody.innerHTML = '';
-    let subtotal = 0;
-
-    carritoVentas.forEach((item, index) => {
-        const totalLinea = item.cant * item.pr;
-        subtotal += totalLinea;
-        const cantTxt = item.esPesable ? `${item.cant.toFixed(3)} kg` : item.cant;
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${item.cod}</td>
-                <td>${cantTxt}</td>
-                <td>${item.det}</td>
-                <td>$${item.pr.toFixed(2)}</td>
-                <td>0%</td>
-                <td>$${totalLinea.toFixed(2)}</td>
-            </tr>`;
-    });
-    document.getElementById('total-final').innerText = `$${subtotal.toLocaleString('es-AR', {minimumFractionDigits: 2})}`;
-}
-
-// --- LISTENERS GLOBALES ---
-window.addEventListener('keydown', e => {
-    if (e.key === 'F6') { e.preventDefault(); abrirVentas(); }
-    if (e.key === 'F4') { 
-        if(document.getElementById('modal-ventas').style.display === 'flex') {
-            e.preventDefault(); 
-            abrirBuscadorManual(); 
-        }
-    }
-    if (e.key === 'Escape') { 
-        cerrarBuscadorManual();
-        cerrarVentas(); 
-    }
 });
 
-setInterval(() => {
-    const clock = document.getElementById('clock');
-    if (clock) clock.innerText = new Date().toLocaleTimeString();
-}, 1000);
+// 6. ANIMACIÓN DEL CARRUSEL (3 Imágenes)
+let currentIdx = 0;
+const totalSlides = 3;
+const carouselInner = document.getElementById('carousel');
+
+function moverCarrusel() {
+    currentIdx = (currentIdx + 1) % totalSlides;
+    // Multiplicamos por 100 para desplazar el contenedor
+    carouselInner.style.transform = `translateX(-${currentIdx * 100}%)`;
+}
+
+// Cambiar de foto cada 5 segundos
+setInterval(moverCarrusel, 5000);
+
+// 7. OCULTAR EL LOADER AL CARGAR LA WEB
+window.addEventListener("load", () => {
+    const loader = document.getElementById("loader");
+    setTimeout(() => {
+        loader.classList.add("loader-hidden");
+    }, 1500); // Se oculta tras 1.5 segundos
+});
