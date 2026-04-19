@@ -1,116 +1,138 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+/**
+ * ARCHIVO: tienda-logic.js
+ * Este archivo maneja la conexión con Supabase, la subida de imágenes
+ * y la visualización de productos filtrados por tienda.
+ */
 
-// 1. CONFIGURACIÓN DE TU FIREBASE (Basada en tu imagen)
-const firebaseConfig = {
-    apiKey: "AIzaSyAnxydDNTP15DqDKBfM8CEU1j42kwxrjjc",
-    authDomain: "mundo-magico-c2476.firebaseapp.com",
-    projectId: "mundo-magico-c2476",
-    storageBucket: "mundo-magico-c2476.firebasestorage.app",
-    messagingSenderId: "659897627792",
-    appId: "1:659897627792:web:602377c729525164d1f56b"
-};
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-// 2. INICIALIZACIÓN
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const colRef = collection(db, "productos");
+// 1. CONFIGURACIÓN
+// Reemplaza con los datos de tu proyecto en: Settings > API
+const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
+const SUPABASE_KEY = 'TU_ANON_KEY';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 3. LÓGICA DEL PANEL DE ADMINISTRACIÓN (MODAL)
-const modal = document.getElementById('admin-modal');
-const openBtn = document.getElementById('open-admin');
-const closeBtn = document.getElementById('close-admin');
+// 2. IDENTIFICADOR ÚNICO DE ESTA TIENDA
+// Cambia este valor cuando crees una web para un cliente nuevo
+const TIENDA_ID = 'mundo_magico';
 
-// Abrir modal al tocar la tuerca
-openBtn.onclick = () => {
-    modal.style.display = 'flex';
-};
+/**
+ * Función para obtener y mostrar los productos en el HTML
+ */
+async function mostrarCatalogo() {
+    const contenedor = document.getElementById('contenedor-productos');
+    if (!contenedor) return;
 
-// Cerrar modal al tocar la X
-closeBtn.onclick = () => {
-    modal.style.display = 'none';
-};
+    // Consultamos la tabla 'productos' filtrando por el ID de esta tienda
+    const { data: productos, error } = await supabase
+        .from('productos')
+        .select('*')
+        .eq('tienda_id', TIENDA_ID)
+        .order('created_at', { ascending: false });
 
-// Cerrar modal si se toca fuera de la caja blanca
-window.onclick = (event) => {
-    if (event.target == modal) {
-        modal.style.display = 'none';
+    if (error) {
+        console.error("Error al obtener productos:", error.message);
+        return;
     }
-};
 
-// 4. FUNCIÓN PARA PUBLICAR UNA PRENDA NUEVA
-const btnAdd = document.getElementById('btn-add');
-btnAdd.onclick = async () => {
-    const nombre = document.getElementById('p-nombre').value;
-    const precio = document.getElementById('p-precio').value;
-    const imagen = document.getElementById('p-img').value;
+    // Limpiamos el contenedor
+    contenedor.innerHTML = '';
 
-    // Validación simple
-    if (nombre && precio && imagen) {
-        try {
-            await addDoc(colRef, {
-                nombre: nombre,
-                precio: precio,
-                imagen: imagen,
-                fecha: Date.now() // Guardamos la fecha para ordenar los más nuevos primero
-            });
-            
-            // Limpiar formulario y cerrar
-            document.getElementById('p-nombre').value = "";
-            document.getElementById('p-precio').value = "";
-            document.getElementById('p-img').value = "";
-            modal.style.display = 'none';
-            
-            alert("¡Prenda publicada con éxito en Mundo Mágico!");
-        } catch (error) {
-            console.error("Error al subir:", error);
-            alert("Error al conectar con la base de datos.");
-        }
-    } else {
-        alert("Por favor, rellena todos los campos.");
+    // Si no hay productos, mostramos un mensaje
+    if (productos.length === 0) {
+        contenedor.innerHTML = '<p style="color: #94a3b8;">No hay productos disponibles por ahora.</p>';
+        return;
     }
-};
 
-// 5. CARGAR PRODUCTOS DESDE FIREBASE EN TIEMPO REAL
-// Usamos onSnapshot para que si agregas algo desde otro celular, se vea al instante
-const q = query(colRef, orderBy("fecha", "desc"));
-onSnapshot(q, (snapshot) => {
-    const grid = document.getElementById('product-grid');
-    grid.innerHTML = ""; // Limpiamos la cuadrícula antes de recargar
-    
-    snapshot.forEach((doc) => {
-        const p = doc.data();
-        // Creamos la tarjeta del producto (diseño de 2 columnas en móvil)
-        grid.innerHTML += `
-            <div class="card animate__animated animate__fadeInUp">
-                <img src="${p.imagen}" alt="${p.nombre}">
-                <div class="card-info">
-                    <h3>${p.nombre}</h3>
-                    <span class="price">$${p.precio}</span>
+    // Dibujamos cada producto en la pantalla
+    productos.forEach(prod => {
+        contenedor.innerHTML += `
+            <div class="producto-card">
+                <img src="${prod.imagen_url}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
+                <div class="info">
+                    <h3>${prod.nombre}</h3>
+                    <p class="precio">$${prod.precio}</p>
+                    <small style="color: #64748b;">ID: ${TIENDA_ID}</small>
                 </div>
             </div>
         `;
     });
-});
-
-// 6. ANIMACIÓN DEL CARRUSEL (3 Imágenes)
-let currentIdx = 0;
-const totalSlides = 3;
-const carouselInner = document.getElementById('carousel');
-
-function moverCarrusel() {
-    currentIdx = (currentIdx + 1) % totalSlides;
-    // Multiplicamos por 100 para desplazar el contenedor
-    carouselInner.style.transform = `translateX(-${currentIdx * 100}%)`;
 }
 
-// Cambiar de foto cada 5 segundos
-setInterval(moverCarrusel, 5000);
+/**
+ * Función para subir una imagen al Storage y registrar el producto
+ */
+async function crearProducto() {
+    const inputNombre = document.getElementById('nombre');
+    const inputPrecio = document.getElementById('precio');
+    const inputFoto = document.getElementById('foto');
+    const btnSubir = document.getElementById('btn-subir');
 
-// 7. OCULTAR EL LOADER AL CARGAR LA WEB
-window.addEventListener("load", () => {
-    const loader = document.getElementById("loader");
-    setTimeout(() => {
-        loader.classList.add("loader-hidden");
-    }, 1500); // Se oculta tras 1.5 segundos
+    // Validaciones básicas
+    if (!inputNombre.value || !inputPrecio.value || !inputFoto.files[0]) {
+        alert("¡Faltan datos! Asegúrate de poner nombre, precio y elegir una foto.");
+        return;
+    }
+
+    const file = inputFoto.files[0];
+    btnSubir.innerText = "Procesando...";
+    btnSubir.disabled = true;
+
+    try {
+        // A. Subir la imagen al Storage (Bucket: imagenes_tiendas)
+        // Creamos un nombre de archivo único para evitar conflictos
+        const nombreLimpio = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
+        const pathArchivo = `${TIENDA_ID}/${Date.now()}_${nombreLimpio}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('imagenes_tiendas')
+            .upload(pathArchivo, file);
+
+        if (uploadError) throw uploadError;
+
+        // B. Obtener la URL pública de la imagen recién subida
+        const { data: urlData } = supabase.storage
+            .from('imagenes_tiendas')
+            .getPublicUrl(pathArchivo);
+
+        const publicUrl = urlData.publicUrl;
+
+        // C. Insertar los datos en la tabla 'productos'
+        const { error: dbError } = await supabase
+            .from('productos')
+            .insert([{
+                nombre: inputNombre.value,
+                precio: parseFloat(inputPrecio.value),
+                imagen_url: publicUrl,
+                tienda_id: TIENDA_ID
+            }]);
+
+        if (dbError) throw dbError;
+
+        // D. Éxito: Limpiar formulario y recargar lista
+        alert("¡Producto agregado correctamente!");
+        inputNombre.value = '';
+        inputPrecio.value = '';
+        inputFoto.value = '';
+        mostrarCatalogo();
+
+    } catch (err) {
+        console.error("Error completo:", err);
+        alert("Error: " + err.message);
+    } finally {
+        btnSubir.innerText = "Subir Producto";
+        btnSubir.disabled = false;
+    }
+}
+
+// 3. INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', () => {
+    // Cargamos los productos apenas abre la página
+    mostrarCatalogo();
+
+    // Vinculamos el botón de subir con la función
+    const btnSubir = document.getElementById('btn-subir');
+    if (btnSubir) {
+        btnSubir.addEventListener('click', crearProducto);
+    }
 });
