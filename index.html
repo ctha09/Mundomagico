@@ -3,216 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mundo Mágico - Catálogo</title>
+    <title>Mundo Mágico | Tienda Dinámica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.1);
-            --border: rgba(255, 255, 255, 0.2);
+            --bg-color: #e8f3e8;        
+            --pink-accent: #fce4ec;     
+            --card-bg: #ffffff;         
+            --primary-green: #a8c69f;   
+            --accent-green: #7fa97a;    
+            --text-main: #2f3e30;       
+            --border: rgba(168, 198, 159, 0.3);
         }
+
         body {
-            background: radial-gradient(circle at top, #1e293b, #0f172a);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            background-image: linear-gradient(135deg, var(--pink-accent) 25%, transparent 25%), linear-gradient(225deg, var(--pink-accent) 25%, transparent 25%), linear-gradient(45deg, var(--pink-accent) 25%, transparent 25%), linear-gradient(315deg, var(--pink-accent) 25%, var(--bg-color) 25%);
+            background-position: 40px 0, 40px 0, 0 0, 0 0; background-size: 80px 80px; background-attachment: fixed;
+            color: var(--text-main); font-family: 'Quicksand', sans-serif; margin: 0; padding: 0;
         }
-        .header {
-            text-align: center;
-            padding: 40px 0;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        /* Estilo Glassmorphism para las tarjetas */
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-        .card:hover { transform: translateY(-5px); }
-        .card img { width: 100%; height: 250px; object-fit: cover; }
-        .card-info { padding: 15px; }
-        .precio { color: #10b981; font-weight: bold; font-size: 1.2rem; }
-        
-        #catalogo {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(232, 243, 232, 0.88); z-index: -1; }
 
-        /* Panel Admin */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        /* CARRUSEL DINÁMICO */
+        .carousel-container {
+            position: relative; width: 100%; height: 450px; margin-top: 20px;
+            border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 4px solid white;
+            background: #eee;
+        }
+        .carousel-slide { display: flex; width: 100%; height: 100%; transition: transform 0.6s ease-in-out; }
+        .carousel-item { min-width: 100%; height: 100%; position: relative; }
+        .carousel-item img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
+        .carousel-caption { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            text-align: center; color: white; width: 100%; 
+        }
+        .carousel-caption h1 { font-size: 3.5rem; margin: 0; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+
+        /* PANEL ADMIN MEJORADO */
         #panel-admin {
-            display: none;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid #10b981;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
+            display: none; background: white; padding: 25px; border-radius: 25px; 
+            border: 2px solid var(--pink-accent); max-width: 800px; margin: 30px auto;
         }
-        input, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: rgba(0,0,0,0.3);
-            color: white;
-        }
-        button { background: #3b82f6; cursor: pointer; border: none; font-weight: bold; }
-        button:hover { background: #2563eb; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .admin-grid { grid-template-columns: 1fr; } }
+        
+        .admin-box { background: #f9fbf9; padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
+        h3 { margin-top: 0; color: var(--accent-green); font-size: 1.1rem; }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center; align-items: center;
-            z-index: 1000;
-        }
+        /* BOTONES Y INPUTS */
+        button { cursor: pointer; transition: 0.3s; font-family: inherit; }
+        .btn-main { background: var(--accent-green); color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 700; margin-top: 10px; }
+        .btn-admin-toggle { background: white; border: 1.5px solid var(--primary-green); color: var(--primary-green); padding: 8px 25px; border-radius: 50px; font-weight: 600; margin: 20px auto; display: block; }
+        
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--border); box-sizing: border-box; }
+
+        /* CATÁLOGO */
+        #catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-top: 40px; }
+        .card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 300px; object-fit: cover; }
+        .card-info { padding: 15px; text-align: center; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>Mundo Mágico</h1>
-        <p>Catálogo Exclusivo</p>
-        <button id="open-login" style="width: auto; padding: 5px 15px; font-size: 0.8rem;">Modo Admin</button>
+    <!-- CARRUSEL -->
+    <div class="carousel-container">
+        <div class="carousel-slide" id="slider">
+            <!-- Se carga desde Supabase -->
+            <div class="carousel-item">
+                <div class="carousel-caption"><h1>Mundo Mágico</h1><p>Cargando carrusel...</p></div>
+            </div>
+        </div>
     </div>
 
+    <button id="open-login" class="btn-admin-toggle">Modo Editor</button>
+
+    <!-- PANEL ADMIN DOBLE -->
     <div id="panel-admin">
-        <h3>Añadir Nuevo Producto</h3>
-        <input type="text" id="nombre-nuevo" placeholder="Nombre de la prenda">
-        <input type="number" id="precio-nuevo" placeholder="Precio">
-        <textarea id="desc-nuevo" placeholder="Descripción (talles, colores...)"></textarea>
-        <input type="file" id="foto-nueva" accept="image/*">
-        <button id="btn-subir">Guardar en Catálogo</button>
+        <div class="admin-grid">
+            <!-- Sección Productos -->
+            <div class="admin-box">
+                <h3>👗 Subir Prenda</h3>
+                <input type="text" id="p-nombre" placeholder="Nombre">
+                <input type="number" id="p-precio" placeholder="Precio">
+                <textarea id="p-desc" placeholder="Descripción"></textarea>
+                <input type="file" id="p-foto" accept="image/*">
+                <button class="btn-main" onclick="subirProducto()">Publicar Ropa</button>
+            </div>
+
+            <!-- Sección Carrusel -->
+            <div class="admin-box">
+                <h3>🖼️ Fotos Carrusel</h3>
+                <p style="font-size: 0.8rem;">Sube fotos horizontales para mejor resultado.</p>
+                <input type="file" id="c-foto" accept="image/*">
+                <button class="btn-main" style="background: var(--primary-green);" onclick="subirFotoCarrusel()">Añadir al Slider</button>
+                <div id="lista-carrusel" style="margin-top:10px; max-height: 150px; overflow-y: auto; font-size: 0.8rem;"></div>
+            </div>
+        </div>
     </div>
 
-    <div id="catalogo">
-        <p style="text-align: center; grid-column: 1/-1;">Cargando productos...</p>
-    </div>
+    <div id="catalogo"></div>
 </div>
 
+<!-- Modal Login -->
 <div id="modal-login" class="modal">
-    <div style="background: #1e293b; padding: 30px; border-radius: 15px; width: 300px;">
-        <h3>Acceso Admin</h3>
+    <div class="modal-content">
+        <h3>Clave de Acceso</h3>
         <input type="password" id="pass-input" placeholder="Contraseña">
-        <button id="btn-entrar">Entrar</button>
-        <button id="btn-cerrar" style="background: transparent;">Cancelar</button>
+        <button class="btn-main" id="btn-entrar">Entrar</button>
+        <button style="background:none; border:none; color:#999; margin-top:10px;" id="btn-cerrar">Cerrar</button>
     </div>
 </div>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    // Configuración Corregida
     const supabaseUrl = 'https://zvmcjmjbedwaftejdduu.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const TIENDA_ID = 'mundo_magico';
-    const PASS_ADMIN = '1234'; 
     let isAdmin = false;
 
-    // Cargar Productos
-    async function cargarProductos() {
-        const contenedor = document.getElementById('catalogo');
-        try {
-            const { data: productos, error } = await supabase
-                .from('productos')
-                .select('*')
-                .eq('tienda_id', TIENDA_ID)
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-
-            contenedor.innerHTML = '';
-            if (productos && productos.length > 0) {
-                productos.forEach(p => {
-                    contenedor.innerHTML += `
-                        <div class="card">
-                            <img src="${p.imagen_url}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300x200?text=Sin+Imagen'">
-                            <div class="card-info">
-                                <h3>${p.nombre}</h3>
-                                <p class="precio">$${p.precio}</p>
-                                <p>${p.descripcion || ''}</p>
-                                ${isAdmin ? `<button onclick="window.borrarProd('${p.id}')" style="background:#ef4444; margin-top:10px;">Eliminar</button>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                contenedor.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No hay productos todavía.</p>';
-            }
-        } catch (e) {
-            contenedor.innerHTML = '<p style="color:red;">Error de conexión. Revisa la consola.</p>';
-            console.error(e);
+    // --- CARGAR CARRUSEL ---
+    async function cargarCarrusel() {
+        const slider = document.getElementById('slider');
+        const { data, error } = await supabase.from('carrusel').select('*').eq('tienda_id', TIENDA_ID);
+        
+        if (data && data.length > 0) {
+            slider.innerHTML = data.map(f => `
+                <div class="carousel-item">
+                    <img src="${f.imagen_url}">
+                    <div class="carousel-caption"><h1>Mundo Mágico</h1></div>
+                </div>
+            `).join('');
+            iniciarAnimacionCarrusel(data.length);
+            actualizarListaAdminCarrusel(data);
         }
     }
 
-    // Subir Producto
-    async function subirProducto() {
-        const nombre = document.getElementById('nombre-nuevo').value;
-        const precio = document.getElementById('precio-nuevo').value;
-        const desc = document.getElementById('desc-nuevo').value;
-        const file = document.getElementById('foto-nueva').files[0];
+    let intervaloSlider;
+    function iniciarAnimacionCarrusel(total) {
+        if(intervaloSlider) clearInterval(intervaloSlider);
+        let index = 0;
+        intervaloSlider = setInterval(() => {
+            index = (index + 1) % total;
+            document.getElementById('slider').style.transform = `translateX(-${index * 100}%)`;
+        }, 4000);
+    }
 
-        if (!nombre || !precio || !file) return alert("Completa los datos");
+    // --- SUBIR FOTO CARRUSEL ---
+    window.subirFotoCarrusel = async () => {
+        const file = document.getElementById('c-foto').files[0];
+        if(!file) return alert("Selecciona una foto");
 
-        const btn = document.getElementById('btn-subir');
-        btn.innerText = "Subiendo..."; btn.disabled = true;
+        const path = `carrusel/${Date.now()}_${file.name}`;
+        await supabase.storage.from('imagenes_tiendas').upload(path, file);
+        const { data } = supabase.storage.from('imagenes_tiendas').getPublicUrl(path);
 
-        try {
-            const path = `${TIENDA_ID}/${Date.now()}_${file.name}`;
-            const { error: sErr } = await supabase.storage.from('imagenes_tiendas').upload(path, file);
-            if (sErr) throw sErr;
+        await supabase.from('carrusel').insert([{ imagen_url: data.publicUrl, tienda_id: TIENDA_ID }]);
+        alert("¡Foto añadida!"); location.reload();
+    }
 
-            const { data: urlData } = supabase.storage.from('imagenes_tiendas').getPublicUrl(path);
+    function actualizarListaAdminCarrusel(fotos) {
+        if(!isAdmin) return;
+        const lista = document.getElementById('lista-carrusel');
+        lista.innerHTML = '<strong>Fotos actuales:</strong><br>' + fotos.map(f => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span>ID: ${f.id.substring(0,5)}...</span>
+                <button onclick="window.borrarFoto('${f.id}')" style="color:red; border:none; background:none;">Eliminar</button>
+            </div>
+        `).join('');
+    }
 
-            const { error: dbErr } = await supabase.from('productos').insert([{
-                nombre, precio: parseFloat(precio), descripcion: desc, imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID
-            }]);
-            if (dbErr) throw dbErr;
-
-            alert("¡Subido!");
+    window.borrarFoto = async (id) => {
+        if(confirm("¿Quitar foto del carrusel?")) {
+            await supabase.from('carrusel').delete().eq('id', id);
             location.reload();
-        } catch (e) {
-            alert("Error: " + e.message);
-        } finally {
-            btn.innerText = "Guardar"; btn.disabled = false;
         }
     }
 
-    // Función global para borrar
-    window.borrarProd = async (id) => {
-        if(confirm("¿Borrar?")) {
-            await supabase.from('productos').delete().eq('id', id);
+    // --- PRODUCTOS ---
+    async function cargarProductos() {
+        const { data } = await supabase.from('productos').select('*').eq('tienda_id', TIENDA_ID).order('created_at', {ascending: false});
+        const contenedor = document.getElementById('catalogo');
+        contenedor.innerHTML = data.map(p => `
+            <div class="card">
+                <img src="${p.imagen_url}">
+                <div class="card-info">
+                    <h3>${p.nombre}</h3>
+                    <strong style="color:var(--accent-green)">$${p.precio}</strong>
+                    <p style="font-size:0.8rem; color:#888;">${p.descripcion || ''}</p>
+                    ${isAdmin ? `<button onclick="window.borrarP('${p.id}')" style="background:#ffeded; color:red; border:none; padding:5px; border-radius:5px; margin-top:10px;">Eliminar</button>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.subirProducto = async () => {
+        const nombre = document.getElementById('p-nombre').value;
+        const precio = document.getElementById('p-precio').value;
+        const desc = document.getElementById('p-desc').value;
+        const file = document.getElementById('p-foto').files[0];
+
+        if(!nombre || !precio || !file) return alert("Faltan datos");
+
+        const path = `productos/${Date.now()}_${file.name}`;
+        await supabase.storage.from('imagenes_tiendas').upload(path, file);
+        const { data } = supabase.storage.from('imagenes_tiendas').getPublicUrl(path);
+
+        await supabase.from('productos').insert([{ nombre, precio, descripcion: desc, imagen_url: data.publicUrl, tienda_id: TIENDA_ID }]);
+        alert("¡Prenda subida!"); location.reload();
+    }
+
+    window.borrarP = async (id) => {
+        if(confirm("¿Borrar?")) { await supabase.from('productos').delete().eq('id', id); cargarProductos(); }
+    }
+
+    // LOGIN
+    document.getElementById('open-login').onclick = () => document.getElementById('modal-login').style.display='flex';
+    document.getElementById('btn-cerrar').onclick = () => document.getElementById('modal-login').style.display='none';
+    document.getElementById('btn-entrar').onclick = () => {
+        if(document.getElementById('pass-input').value === '1234') {
+            isAdmin = true;
+            document.getElementById('panel-admin').style.display='block';
+            document.getElementById('modal-login').style.display='none';
             cargarProductos();
-        }
+            cargarCarrusel();
+        } else alert("Clave incorrecta");
     }
 
-    // Eventos
-    document.addEventListener('DOMContentLoaded', () => {
-        cargarProductos();
-        document.getElementById('btn-subir').onclick = subirProducto;
-        document.getElementById('open-login').onclick = () => document.getElementById('modal-login').style.display='flex';
-        document.getElementById('btn-cerrar').onclick = () => document.getElementById('modal-login').style.display='none';
-        document.getElementById('btn-entrar').onclick = () => {
-            if(document.getElementById('pass-input').value === PASS_ADMIN) {
-                isAdmin = true;
-                document.getElementById('panel-admin').style.display='block';
-                document.getElementById('modal-login').style.display='none';
-                cargarProductos();
-            } else { alert("Error"); }
-        };
-    });
+    cargarCarrusel();
+    cargarProductos();
 </script>
-
 </body>
 </html>
