@@ -1,8 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-// 1. CONFIGURACIÓN INICIAL
-// Corregido: zvmcmj... (tenias una 'j' extra antes)
-const supabaseUrl = 'https://zvmcmjbedwaftejdduu.supabase.co'; 
+
+const supabaseUrl = 'https://zvmcjmjbedwaftejdduu.supabase.co'; 
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k'; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
