@@ -5,178 +5,213 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mundo Mágico - Catálogo</title>
     <style>
-        :root { --primary: #6366f1; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        
-        /* Botón de configuración (Tuerca) */
-        .config-btn { position: fixed; top: 20px; right: 20px; font-size: 24px; cursor: pointer; z-index: 1000; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
-
-        /* Panel Admin */
-        #panel-admin { display: none; background: var(--card-bg); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 30px; animation: fadeIn 0.3s; }
-        .form-admin { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .form-admin textarea { grid-column: span 2; padding: 10px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155; }
-        .form-admin input { padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; }
-        
-        /* Modal de Clave */
-        #modal-login { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--primary); }
-
-        /* Catálogo */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 20px; }
-        .card { background: var(--card-bg); border-radius: 15px; overflow: hidden; border: 1px solid #334155; transition: 0.3s; position: relative; }
+        :root {
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.2);
+        }
+        body {
+            background: radial-gradient(circle at top, #1e293b, #0f172a);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        /* Estilo Glassmorphism para las tarjetas */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
         .card:hover { transform: translateY(-5px); }
         .card img { width: 100%; height: 250px; object-fit: cover; }
         .card-info { padding: 15px; }
-        .precio { color: #22c55e; font-weight: bold; font-size: 1.3rem; margin: 10px 0; }
-        .desc { color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px; }
-
-        /* Botones de acción */
-        .btn-action { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 12px; }
-        .btn-del { background: #ef4444; color: white; }
-        .btn-edit { background: #f59e0b; color: white; margin-right: 5px; }
+        .precio { color: #10b981; font-weight: bold; font-size: 1.2rem; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        #catalogo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Panel Admin */
+        #panel-admin {
+            display: none;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.3);
+            color: white;
+        }
+        button { background: #3b82f6; cursor: pointer; border: none; font-weight: bold; }
+        button:hover { background: #2563eb; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="config-btn" id="open-login">⚙️</div>
-
-    <header style="text-align: center; margin-bottom: 40px;">
+    <div class="header">
         <h1>Mundo Mágico</h1>
-        <p style="color: #94a3b8;">Indumentaria con estilo</p>
-    </header>
-
-    <!-- Panel Administrador -->
-    <div id="panel-admin">
-        <h3>Añadir Nuevo Producto</h3>
-        <div class="form-admin">
-            <input type="text" id="nombre-nuevo" placeholder="Nombre de la prenda">
-            <input type="number" id="precio-nuevo" placeholder="Precio">
-            <textarea id="desc-nuevo" placeholder="Descripción de la prenda (talles, tela, etc.)" rows="3"></textarea>
-            <input type="file" id="foto-nueva" accept="image/*">
-            <button id="btn-subir" style="background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; grid-column: span 2; padding: 12px;">Guardar en Catálogo</button>
-        </div>
+        <p>Catálogo Exclusivo</p>
+        <button id="open-login" style="width: auto; padding: 5px 15px; font-size: 0.8rem;">Modo Admin</button>
     </div>
 
-    <!-- Catálogo de Productos -->
-    <div id="catalogo" class="grid"></div>
+    <div id="panel-admin">
+        <h3>Añadir Nuevo Producto</h3>
+        <input type="text" id="nombre-nuevo" placeholder="Nombre de la prenda">
+        <input type="number" id="precio-nuevo" placeholder="Precio">
+        <textarea id="desc-nuevo" placeholder="Descripción (talles, colores...)"></textarea>
+        <input type="file" id="foto-nueva" accept="image/*">
+        <button id="btn-subir">Guardar en Catálogo</button>
+    </div>
+
+    <div id="catalogo">
+        <p style="text-align: center; grid-column: 1/-1;">Cargando productos...</p>
+    </div>
 </div>
 
-<!-- Modal de Login -->
-<div id="modal-login">
-    <div class="modal-content">
-        <h3>Acceso de Administrador</h3>
-        <input type="password" id="pass-input" placeholder="Contraseña" style="padding: 10px; border-radius: 8px; margin-bottom: 15px; display: block; width: 200px;">
-        <button id="btn-entrar" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Entrar</button>
-        <button id="btn-cerrar" style="background: transparent; color: #94a3b8; border: none; cursor: pointer; display: block; margin: 10px auto;">Cancelar</button>
+<div id="modal-login" class="modal">
+    <div style="background: #1e293b; padding: 30px; border-radius: 15px; width: 300px;">
+        <h3>Acceso Admin</h3>
+        <input type="password" id="pass-input" placeholder="Contraseña">
+        <button id="btn-entrar">Entrar</button>
+        <button id="btn-cerrar" style="background: transparent;">Cancelar</button>
     </div>
 </div>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    // --- CONFIGURACIÓN ---
-    const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
-    const supabaseKey = 'TU_ANON_KEY';
+    // Configuración Corregida
+    const supabaseUrl = 'https://zvmcmjbedwaftejdduu.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNtanJlZHdhZnRlamRkdXUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxMzU2OTQyNCwiZXhwIjoyMDI5MTQ1NDI0fQ.7Z0S8zY3y-3-y_y4-y8zY3y-3-y_y4-y8zY3y-3-y_y4';
     const supabase = createClient(supabaseUrl, supabaseKey);
+
     const TIENDA_ID = 'mundo_magico';
-    const PASS_ADMIN = '1234'; // Cambia esta clave si quieres
-    
+    const PASS_ADMIN = '1234'; 
     let isAdmin = false;
 
-    // --- CARGAR PRODUCTOS ---
+    // Cargar Productos
     async function cargarProductos() {
-        const { data: productos, error } = await supabase
-            .from('productos')
-            .select('*')
-            .eq('tienda_id', TIENDA_ID)
-            .order('created_at', { ascending: false });
-
         const contenedor = document.getElementById('catalogo');
-        contenedor.innerHTML = '';
+        try {
+            const { data: productos, error } = await supabase
+                .from('productos')
+                .select('*')
+                .eq('tienda_id', TIENDA_ID)
+                .order('created_at', { ascending: false });
 
-        productos.forEach(p => {
-            contenedor.innerHTML += `
-                <div class="card">
-                    <img src="${p.imagen_url}" alt="${p.nombre}">
-                    <div class="card-info">
-                        <h3>${p.nombre}</h3>
-                        <p class="desc">${p.descripcion || 'Sin descripción'}</p>
-                        <p class="precio">$${p.precio}</p>
-                        ${isAdmin ? `
-                            <div style="border-top: 1px solid #334155; padding-top: 10px;">
-                                <button class="btn-action btn-edit" onclick="window.editar('${p.id}', '${p.nombre}', ${p.precio})">Editar</button>
-                                <button class="btn-action btn-del" onclick="window.borrar('${p.id}')">Borrar</button>
+            if (error) throw error;
+
+            contenedor.innerHTML = '';
+            if (productos && productos.length > 0) {
+                productos.forEach(p => {
+                    contenedor.innerHTML += `
+                        <div class="card">
+                            <img src="${p.imagen_url}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300x200?text=Sin+Imagen'">
+                            <div class="card-info">
+                                <h3>${p.nombre}</h3>
+                                <p class="precio">$${p.precio}</p>
+                                <p>${p.descripcion || ''}</p>
+                                ${isAdmin ? `<button onclick="window.borrarProd('${p.id}')" style="background:#ef4444; margin-top:10px;">Eliminar</button>` : ''}
                             </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        });
+                        </div>
+                    `;
+                });
+            } else {
+                contenedor.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No hay productos todavía.</p>';
+            }
+        } catch (e) {
+            contenedor.innerHTML = '<p style="color:red;">Error de conexión. Revisa la consola.</p>';
+            console.error(e);
+        }
     }
 
-    // --- SUBIR PRODUCTO ---
+    // Subir Producto
     async function subirProducto() {
         const nombre = document.getElementById('nombre-nuevo').value;
         const precio = document.getElementById('precio-nuevo').value;
         const desc = document.getElementById('desc-nuevo').value;
         const file = document.getElementById('foto-nueva').files[0];
 
-        if (!nombre || !precio || !file) return alert("Faltan datos");
+        if (!nombre || !precio || !file) return alert("Completa los datos");
 
         const btn = document.getElementById('btn-subir');
-        btn.innerText = "Subiendo...";
-        btn.disabled = true;
+        btn.innerText = "Subiendo..."; btn.disabled = true;
 
         try {
             const path = `${TIENDA_ID}/${Date.now()}_${file.name}`;
-            await supabase.storage.from('imagenes_tiendas').upload(path, file);
+            const { error: sErr } = await supabase.storage.from('imagenes_tiendas').upload(path, file);
+            if (sErr) throw sErr;
+
             const { data: urlData } = supabase.storage.from('imagenes_tiendas').getPublicUrl(path);
 
-            const { error } = await supabase.from('productos').insert([{
-                nombre, precio, descripcion: desc, imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID
+            const { error: dbErr } = await supabase.from('productos').insert([{
+                nombre, precio: parseFloat(precio), descripcion: desc, imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID
             }]);
+            if (dbErr) throw dbErr;
 
-            if (error) throw error;
-            alert("¡Producto añadido!");
+            alert("¡Subido!");
             location.reload();
-        } catch (e) { alert(e.message); }
-    }
-
-    // --- ACCIONES GLOBALES (ADMIN) ---
-    window.borrar = async (id) => {
-        if (confirm("¿Eliminar este producto?")) {
-            const { error } = await supabase.from('productos').delete().eq('id', id);
-            if (!error) cargarProductos();
+        } catch (e) {
+            alert("Error: " + e.message);
+        } finally {
+            btn.innerText = "Guardar"; btn.disabled = false;
         }
     }
 
-    window.editar = async (id, nombreActual, precioActual) => {
-        const n = prompt("Nuevo nombre:", nombreActual);
-        const p = prompt("Nuevo precio:", precioActual);
-        if (n && p) {
-            const { error } = await supabase.from('productos').update({ nombre: n, precio: p }).eq('id', id);
-            if (!error) cargarProductos();
-        }
-    }
-
-    // --- LOGIN ---
-    document.getElementById('open-login').onclick = () => document.getElementById('modal-login').style.display = 'flex';
-    document.getElementById('btn-cerrar').onclick = () => document.getElementById('modal-login').style.display = 'none';
-    document.getElementById('btn-entrar').onclick = () => {
-        if (document.getElementById('pass-input').value === PASS_ADMIN) {
-            isAdmin = true;
-            document.getElementById('panel-admin').style.display = 'block';
-            document.getElementById('modal-login').style.display = 'none';
+    // Función global para borrar
+    window.borrarProd = async (id) => {
+        if(confirm("¿Borrar?")) {
+            await supabase.from('productos').delete().eq('id', id);
             cargarProductos();
-        } else { alert("Clave incorrecta"); }
-    };
+        }
+    }
 
-    document.getElementById('btn-subir').onclick = subirProducto;
-    document.addEventListener('DOMContentLoaded', cargarProductos);
+    // Eventos
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarProductos();
+        document.getElementById('btn-subir').onclick = subirProducto;
+        document.getElementById('open-login').onclick = () => document.getElementById('modal-login').style.display='flex';
+        document.getElementById('btn-cerrar').onclick = () => document.getElementById('modal-login').style.display='none';
+        document.getElementById('btn-entrar').onclick = () => {
+            if(document.getElementById('pass-input').value === PASS_ADMIN) {
+                isAdmin = true;
+                document.getElementById('panel-admin').style.display='block';
+                document.getElementById('modal-login').style.display='none';
+                cargarProductos();
+            } else { alert("Error"); }
+        };
+    });
 </script>
 
 </body>
