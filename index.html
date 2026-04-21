@@ -3,245 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mundo Mágico | Tienda Dinámica</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Mundo Mágico | Tienda Infantil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #e8f3e8;        
-            --pink-accent: #fce4ec;     
-            --card-bg: #ffffff;         
-            --primary-green: #a8c69f;   
-            --accent-green: #7fa97a;    
-            --text-main: #2f3e30;       
-            --border: rgba(168, 198, 159, 0.3);
+            --bg-pink-notorious: #ffd6e7; 
+            --text-pink-soft: #ffb1cb; 
+            --primary-pink: #ff80ab;
+            --card-shadow: rgba(255, 128, 171, 0.2);
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image: linear-gradient(135deg, var(--pink-accent) 25%, transparent 25%), linear-gradient(225deg, var(--pink-accent) 25%, transparent 25%), linear-gradient(45deg, var(--pink-accent) 25%, transparent 25%), linear-gradient(315deg, var(--pink-accent) 25%, var(--bg-color) 25%);
-            background-position: 40px 0, 40px 0, 0 0, 0 0; background-size: 80px 80px; background-attachment: fixed;
-            color: var(--text-main); font-family: 'Quicksand', sans-serif; margin: 0; padding: 0;
+            background-color: var(--bg-pink-notorious);
+            background-image: radial-gradient(circle, currentColor 15%, transparent 16%);
+            background-size: 55px 55px;
+            font-family: 'Fredoka', sans-serif; 
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+            animation: cambioColorPuntos 12s infinite linear;
         }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(232, 243, 232, 0.88); z-index: -1; }
 
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-
-        /* CARRUSEL DINÁMICO */
-        .carousel-container {
-            position: relative; width: 100%; height: 450px; margin-top: 20px;
-            border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 4px solid white;
-            background: #eee;
+        @keyframes cambioColorPuntos {
+            0%   { color: #ff3385; } 16%  { color: #00ff66; }
+            33%  { color: #ff0000; } 50%  { color: #00ccff; }
+            66%  { color: #00f2ff; } 83%  { color: #ffffff; }
+            100% { color: #ff3385; }
         }
-        .carousel-slide { display: flex; width: 100%; height: 100%; transition: transform 0.6s ease-in-out; }
-        .carousel-item { min-width: 100%; height: 100%; position: relative; }
-        .carousel-item img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
-        .carousel-caption { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            text-align: center; color: white; width: 100%; 
+
+        /* --- MENÚ LATERAL --- */
+        .menu-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 2000; cursor: pointer;
+            background: white; padding: 12px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .carousel-caption h1 { font-size: 3.5rem; margin: 0; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .menu-btn span { display: block; width: 30px; height: 4px; background: var(--primary-pink); margin: 6px 0; border-radius: 2px; }
 
-        /* PANEL ADMIN MEJORADO */
-        #panel-admin {
-            display: none; background: white; padding: 25px; border-radius: 25px; 
-            border: 2px solid var(--pink-accent); max-width: 800px; margin: 30px auto;
+        .side-menu {
+            position: fixed; top: 0; left: -300px; width: 280px; height: 100%;
+            background: white; z-index: 1999; transition: 0.5s; padding-top: 80px;
         }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 600px) { .admin-grid { grid-template-columns: 1fr; } }
-        
-        .admin-box { background: #f9fbf9; padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
-        h3 { margin-top: 0; color: var(--accent-green); font-size: 1.1rem; }
+        .side-menu.active { left: 0; }
+        .side-menu a {
+            display: block; padding: 15px 40px; font-size: 1.4rem; font-weight: 700;
+            color: var(--primary-pink); text-decoration: none; cursor: pointer;
+        }
+        .side-menu a:hover { background: var(--bg-pink-notorious); }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1998; display: none; }
+        .menu-overlay.active { display: block; }
 
-        /* BOTONES Y INPUTS */
-        button { cursor: pointer; transition: 0.3s; font-family: inherit; }
-        .btn-main { background: var(--accent-green); color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 700; margin-top: 10px; }
-        .btn-admin-toggle { background: white; border: 1.5px solid var(--primary-green); color: var(--primary-green); padding: 8px 25px; border-radius: 50px; font-weight: 600; margin: 20px auto; display: block; }
-        
-        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--border); box-sizing: border-box; }
+        /* --- CONTENEDORES --- */
+        .container { max-width: 1100px; margin: 0 auto; padding: 10px; padding-bottom: 100px; }
 
-        /* CATÁLOGO */
-        #catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-top: 40px; }
-        .card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .card img { width: 100%; height: 300px; object-fit: cover; }
-        .card-info { padding: 15px; text-align: center; }
+        .logo-infantil {
+            font-size: clamp(2.5rem, 8vw, 4rem); text-align: center; margin: 30px 0;
+            background: linear-gradient(to right, #ff8a80, #ff80ab, #ea80fc, #8c9eff, #80d8ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: rainbow 8s infinite linear; font-weight: 700; cursor: pointer;
+        }
+        @keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; text-align: center; }
+        /* SECCIONES VISIBLES/OCULTAS */
+        #seccion-inicio { text-align: center; }
+        .bienvenida-texto { color: white; text-shadow: 2px 2px var(--primary-pink); font-size: 1.5rem; margin-top: 20px; }
+
+        .carousel-outer {
+            width: 100%; height: 400px; border-radius: 40px; overflow: hidden; border: 8px solid white;
+            background: white; margin-bottom: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        #slider { display: flex; height: 100%; transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        #slider img { min-width: 100%; height: 100%; object-fit: cover; }
+
+        #catalogo { display: none; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
+        .card { background: white; border-radius: 35px; overflow: hidden; border: 4px solid white; text-align: center; transition: 0.4s; }
+        .card:hover { transform: translateY(-10px); }
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+
+        /* PANEL ADMIN */
+        #panel-admin { display: none; background: white; padding: 30px; border-radius: 40px; margin-bottom: 40px; border: 4px dashed var(--primary-pink); position: relative; }
+        .btn-cerrar-admin { position: absolute; top: 15px; right: 15px; background: #ffebf2; color: var(--primary-pink); border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 20px; }
+        input, select, button { font-family: 'Fredoka'; width: 100%; padding: 12px; margin: 8px 0; border-radius: 15px; border: 1px solid #eee; box-sizing: border-box; }
+        .btn-action { background: var(--primary-pink); color: white; border: none; cursor: pointer; font-weight: bold; }
+
+        .floating-admin { position: fixed; bottom: 30px; right: 30px; background: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; z-index: 1000; border: 3px solid var(--primary-pink); }
     </style>
 </head>
 <body>
 
+<div class="menu-btn" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+</div>
+
+<div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
+<nav class="side-menu" id="sideMenu">
+    <a onclick="navegar('inicio')">🏠 Inicio</a>
+    <a onclick="navegar('todos')">✨ Ver Todo</a>
+    <a onclick="navegar('bebe')">👶 Bebé</a>
+    <a onclick="navegar('ninos')">🎈 Niños</a>
+    <a onclick="navegar('colegial')">🎒 Colegial</a>
+</nav>
+
 <div class="container">
-    <!-- CARRUSEL -->
-    <div class="carousel-container">
-        <div class="carousel-slide" id="slider">
-            <!-- Se carga desde Supabase -->
-            <div class="carousel-item">
-                <div class="carousel-caption"><h1>Mundo Mágico</h1><p>Cargando carrusel...</p></div>
-            </div>
+    <h1 class="logo-infantil" onclick="navegar('inicio')">Mundo Mágico</h1>
+    
+    <!-- SECCIÓN INICIO -->
+    <div id="seccion-inicio">
+        <div class="carousel-outer">
+            <div id="slider"></div>
+        </div>
+        <div class="bienvenida-texto">
+            <h2>¡Bienvenidos a nuestro mundo de colores! 🌈</h2>
+            <p>Explora nuestras categorías en el menú lateral</p>
         </div>
     </div>
 
-    <button id="open-login" class="btn-admin-toggle">Modo Editor</button>
-
-    <!-- PANEL ADMIN DOBLE -->
+    <!-- PANEL ADMIN -->
     <div id="panel-admin">
+        <button class="btn-cerrar-admin" onclick="cerrarPanel()">← Volver</button>
         <div class="admin-grid">
-            <!-- Sección Productos -->
-            <div class="admin-box">
-                <h3>👗 Subir Prenda</h3>
+            <div>
+                <h3>👗 Nuevo Producto</h3>
                 <input type="text" id="p-nombre" placeholder="Nombre">
-                <input type="number" id="p-precio" placeholder="Precio">
-                <textarea id="p-desc" placeholder="Descripción"></textarea>
+                <input type="number" id="p-precio" placeholder="Precio $">
+                <select id="p-categoria">
+                    <option value="bebe">Bebé</option>
+                    <option value="ninos">Niños</option>
+                    <option value="colegial">Colegial</option>
+                </select>
                 <input type="file" id="p-foto" accept="image/*">
-                <button class="btn-main" onclick="subirProducto()">Publicar Ropa</button>
+                <button class="btn-action" onclick="subirProducto()">Publicar</button>
             </div>
-
-            <!-- Sección Carrusel -->
-            <div class="admin-box">
-                <h3>🖼️ Fotos Carrusel</h3>
-                <p style="font-size: 0.8rem;">Sube fotos horizontales para mejor resultado.</p>
+            <div>
+                <h3>🖼️ Gestión Carrusel</h3>
                 <input type="file" id="c-foto" accept="image/*">
-                <button class="btn-main" style="background: var(--primary-green);" onclick="subirFotoCarrusel()">Añadir al Slider</button>
-                <div id="lista-carrusel" style="margin-top:10px; max-height: 150px; overflow-y: auto; font-size: 0.8rem;"></div>
+                <button class="btn-action" onclick="subirCarrusel()">Subir Foto</button>
             </div>
         </div>
     </div>
 
+    <!-- SECCIÓN CATÁLOGO -->
+    <h2 id="titulo-seccion" style="text-align: center; color: var(--primary-pink); margin: 20px 0; text-transform: uppercase; display: none;"></h2>
     <div id="catalogo"></div>
 </div>
 
-<!-- Modal Login -->
-<div id="modal-login" class="modal">
-    <div class="modal-content">
-        <h3>Clave de Acceso</h3>
-        <input type="password" id="pass-input" placeholder="Contraseña">
-        <button class="btn-main" id="btn-entrar">Entrar</button>
-        <button style="background:none; border:none; color:#999; margin-top:10px;" id="btn-cerrar">Cerrar</button>
-    </div>
-</div>
+<div class="floating-admin" onclick="accesoEditor()">⚙️</div>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-    const supabaseUrl = 'https://zvmcjmjbedwaftejdduu.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Configuración Supabase
+    const supabase = createClient('https://zvmcjmjbedwaftejdduu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k');
 
     const TIENDA_ID = 'mundo_magico';
-    let isAdmin = false;
+    let todosLosProductos = [];
 
-    // --- CARGAR CARRUSEL ---
+    // --- NAVEGACIÓN Y MENÚ ---
+    window.toggleMenu = () => {
+        document.getElementById('sideMenu').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    };
+
+    window.navegar = (destino) => {
+        const sideMenu = document.getElementById('sideMenu');
+        if(sideMenu.classList.contains('active')) toggleMenu();
+
+        const inicio = document.getElementById('seccion-inicio');
+        const catalogo = document.getElementById('catalogo');
+        const titulo = document.getElementById('titulo-seccion');
+
+        if(destino === 'inicio') {
+            inicio.style.display = 'block';
+            catalogo.style.display = 'none';
+            titulo.style.display = 'none';
+        } else {
+            inicio.style.display = 'none';
+            catalogo.style.display = 'grid';
+            titulo.style.display = 'block';
+            
+            if(destino === 'todos') {
+                renderizar(todosLosProductos);
+                titulo.innerText = "Nuestro Catálogo Completo";
+            } else {
+                renderizar(todosLosProductos.filter(p => p.categoria === destino));
+                titulo.innerText = "Sección: " + destino;
+            }
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // --- CARGA DE DATOS ---
+    async function init() {
+        await cargarCarrusel();
+        await cargarProductos();
+    }
+
     async function cargarCarrusel() {
-        const slider = document.getElementById('slider');
-        const { data, error } = await supabase.from('carrusel').select('*').eq('tienda_id', TIENDA_ID);
-        
+        const { data } = await supabase.from('carrusel').select('*').eq('tienda_id', TIENDA_ID);
         if (data && data.length > 0) {
-            slider.innerHTML = data.map(f => `
-                <div class="carousel-item">
-                    <img src="${f.imagen_url}">
-                    <div class="carousel-caption"><h1>Mundo Mágico</h1></div>
-                </div>
-            `).join('');
-            iniciarAnimacionCarrusel(data.length);
-            actualizarListaAdminCarrusel(data);
+            document.getElementById('slider').innerHTML = data.map(f => `<img src="${f.imagen_url}">`).join('');
+            let i = 0; 
+            setInterval(() => { 
+                i = (i + 1) % data.length; 
+                document.getElementById('slider').style.transform = `translateX(-${i * 100}%)`; 
+            }, 5000);
         }
     }
 
-    let intervaloSlider;
-    function iniciarAnimacionCarrusel(total) {
-        if(intervaloSlider) clearInterval(intervaloSlider);
-        let index = 0;
-        intervaloSlider = setInterval(() => {
-            index = (index + 1) % total;
-            document.getElementById('slider').style.transform = `translateX(-${index * 100}%)`;
-        }, 4000);
-    }
-
-    // --- SUBIR FOTO CARRUSEL ---
-    window.subirFotoCarrusel = async () => {
-        const file = document.getElementById('c-foto').files[0];
-        if(!file) return alert("Selecciona una foto");
-
-        const path = `carrusel/${Date.now()}_${file.name}`;
-        await supabase.storage.from('imagenes_tiendas').upload(path, file);
-        const { data } = supabase.storage.from('imagenes_tiendas').getPublicUrl(path);
-
-        await supabase.from('carrusel').insert([{ imagen_url: data.publicUrl, tienda_id: TIENDA_ID }]);
-        alert("¡Foto añadida!"); location.reload();
-    }
-
-    function actualizarListaAdminCarrusel(fotos) {
-        if(!isAdmin) return;
-        const lista = document.getElementById('lista-carrusel');
-        lista.innerHTML = '<strong>Fotos actuales:</strong><br>' + fotos.map(f => `
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                <span>ID: ${f.id.substring(0,5)}...</span>
-                <button onclick="window.borrarFoto('${f.id}')" style="color:red; border:none; background:none;">Eliminar</button>
-            </div>
-        `).join('');
-    }
-
-    window.borrarFoto = async (id) => {
-        if(confirm("¿Quitar foto del carrusel?")) {
-            await supabase.from('carrusel').delete().eq('id', id);
-            location.reload();
-        }
-    }
-
-    // --- PRODUCTOS ---
     async function cargarProductos() {
         const { data } = await supabase.from('productos').select('*').eq('tienda_id', TIENDA_ID).order('created_at', {ascending: false});
-        const contenedor = document.getElementById('catalogo');
-        contenedor.innerHTML = data.map(p => `
+        todosLosProductos = data || [];
+    }
+
+    function renderizar(lista) {
+        document.getElementById('catalogo').innerHTML = lista.map(p => `
             <div class="card">
                 <img src="${p.imagen_url}">
-                <div class="card-info">
+                <div style="padding:15px">
                     <h3>${p.nombre}</h3>
-                    <strong style="color:var(--accent-green)">$${p.precio}</strong>
-                    <p style="font-size:0.8rem; color:#888;">${p.descripcion || ''}</p>
-                    ${isAdmin ? `<button onclick="window.borrarP('${p.id}')" style="background:#ffeded; color:red; border:none; padding:5px; border-radius:5px; margin-top:10px;">Eliminar</button>` : ''}
+                    <strong style="color:var(--primary-pink); font-size:1.4rem">$${p.precio}</strong>
                 </div>
             </div>
         `).join('');
     }
+
+    // --- FUNCIONES ADMIN (CRUD) ---
+    window.accesoEditor = () => { if(prompt("Clave:") === "1234") document.getElementById('panel-admin').style.display = 'block'; };
+    window.cerrarPanel = () => { document.getElementById('panel-admin').style.display = 'none'; };
 
     window.subirProducto = async () => {
         const nombre = document.getElementById('p-nombre').value;
         const precio = document.getElementById('p-precio').value;
-        const desc = document.getElementById('p-desc').value;
-        const file = document.getElementById('p-foto').files[0];
+        const categoria = document.getElementById('p-categoria').value;
+        const fotoFile = document.getElementById('p-foto').files[0];
 
-        if(!nombre || !precio || !file) return alert("Faltan datos");
+        if (!nombre || !precio || !fotoFile) {
+            alert("Por favor completa todos los campos");
+            return;
+        }
 
-        const path = `productos/${Date.now()}_${file.name}`;
-        await supabase.storage.from('imagenes_tiendas').upload(path, file);
-        const { data } = supabase.storage.from('imagenes_tiendas').getPublicUrl(path);
+        try {
+            const fileName = `${Date.now()}_${fotoFile.name}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('productos')
+                .upload(fileName, fotoFile);
 
-        await supabase.from('productos').insert([{ nombre, precio, descripcion: desc, imagen_url: data.publicUrl, tienda_id: TIENDA_ID }]);
-        alert("¡Prenda subida!"); location.reload();
-    }
+            if (uploadError) throw uploadError;
 
-    window.borrarP = async (id) => {
-        if(confirm("¿Borrar?")) { await supabase.from('productos').delete().eq('id', id); cargarProductos(); }
-    }
+            const { data: urlData } = supabase.storage.from('productos').getPublicUrl(fileName);
+            const imagen_url = urlData.publicUrl;
 
-    // LOGIN
-    document.getElementById('open-login').onclick = () => document.getElementById('modal-login').style.display='flex';
-    document.getElementById('btn-cerrar').onclick = () => document.getElementById('modal-login').style.display='none';
-    document.getElementById('btn-entrar').onclick = () => {
-        if(document.getElementById('pass-input').value === '1234') {
-            isAdmin = true;
-            document.getElementById('panel-admin').style.display='block';
-            document.getElementById('modal-login').style.display='none';
-            cargarProductos();
-            cargarCarrusel();
-        } else alert("Clave incorrecta");
-    }
+            const { error: insertError } = await supabase.from('productos').insert([{
+                nombre, precio: parseFloat(precio), categoria, imagen_url, tienda_id: TIENDA_ID
+            }]);
 
-    cargarCarrusel();
-    cargarProductos();
+            if (insertError) throw insertError;
+            alert("Producto guardado!");
+            location.reload();
+        } catch (e) { alert("Error al subir: " + e.message); }
+    };
+
+    window.subirCarrusel = async () => {
+        const fotoFile = document.getElementById('c-foto').files[0];
+        if (!fotoFile) return alert("Selecciona una foto");
+
+        try {
+            const fileName = `banner_${Date.now()}`;
+            await supabase.storage.from('carrusel').upload(fileName, fotoFile);
+            const { data: urlData } = supabase.storage.from('carrusel').getPublicUrl(fileName);
+            
+            await supabase.from('carrusel').insert([{ imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID }]);
+            alert("Carrusel actualizado!");
+            location.reload();
+        } catch (e) { alert("Error: " + e.message); }
+    };
+
+    init();
 </script>
 </body>
 </html>
