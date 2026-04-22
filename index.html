@@ -7,27 +7,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-pink-notorious: #ffd6e7; 
-            --text-pink-soft: #ffb1cb; 
+            --bg-pink-soft: #fff0f6; 
             --primary-pink: #ff80ab;
-            --card-shadow: rgba(255, 128, 171, 0.2);
+            --secondary-pink: #ff4081;
         }
 
         body {
-            background-color: var(--bg-pink-notorious);
-            background-image: radial-gradient(circle, currentColor 15%, transparent 16%);
-            background-size: 55px 55px;
+            background-color: var(--bg-pink-soft);
             font-family: 'Fredoka', sans-serif; 
             margin: 0; padding: 0;
             overflow-x: hidden;
-            animation: cambioColorPuntos 12s infinite linear;
-        }
-
-        @keyframes cambioColorPuntos {
-            0%   { color: #ff3385; } 16%  { color: #00ff66; }
-            33%  { color: #ff0000; } 50%  { color: #00ccff; }
-            66%  { color: #00f2ff; } 83%  { color: #ffffff; }
-            100% { color: #ff3385; }
+            color: #444;
         }
 
         /* --- MENÚ LATERAL --- */
@@ -40,14 +30,15 @@
         .side-menu {
             position: fixed; top: 0; left: -300px; width: 280px; height: 100%;
             background: white; z-index: 1999; transition: 0.5s; padding-top: 80px;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
         }
         .side-menu.active { left: 0; }
         .side-menu a {
             display: block; padding: 15px 40px; font-size: 1.4rem; font-weight: 700;
             color: var(--primary-pink); text-decoration: none; cursor: pointer;
         }
-        .side-menu a:hover { background: var(--bg-pink-notorious); }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1998; display: none; }
+        .side-menu a:hover { background: #fff0f6; color: var(--secondary-pink); }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 1998; display: none; }
         .menu-overlay.active { display: block; }
 
         /* --- CONTENEDORES --- */
@@ -61,30 +52,32 @@
         }
         @keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
-        /* SECCIONES VISIBLES/OCULTAS */
+        /* SECCIONES */
         #seccion-inicio { text-align: center; }
-        .bienvenida-texto { color: white; text-shadow: 2px 2px var(--primary-pink); font-size: 1.5rem; margin-top: 20px; }
+        .bienvenida-texto { color: #666; font-size: 1.2rem; margin-top: 20px; }
+        .bienvenida-texto h2 { color: var(--secondary-pink); font-size: 2rem; }
 
         .carousel-outer {
             width: 100%; height: 400px; border-radius: 40px; overflow: hidden; border: 8px solid white;
-            background: white; margin-bottom: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: white; margin-bottom: 40px; box-shadow: 0 15px 30px rgba(0,0,0,0.05);
         }
         #slider { display: flex; height: 100%; transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
         #slider img { min-width: 100%; height: 100%; object-fit: cover; }
 
         #catalogo { display: none; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
-        .card { background: white; border-radius: 35px; overflow: hidden; border: 4px solid white; text-align: center; transition: 0.4s; }
-        .card:hover { transform: translateY(-10px); }
+        .card { background: white; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center; transition: 0.3s; border: 1px solid #f0f0f0; }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(255, 128, 171, 0.2); }
         .card img { width: 100%; height: 220px; object-fit: cover; }
 
         /* PANEL ADMIN */
-        #panel-admin { display: none; background: white; padding: 30px; border-radius: 40px; margin-bottom: 40px; border: 4px dashed var(--primary-pink); position: relative; }
-        .btn-cerrar-admin { position: absolute; top: 15px; right: 15px; background: #ffebf2; color: var(--primary-pink); border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 20px; }
-        input, select, button { font-family: 'Fredoka'; width: 100%; padding: 12px; margin: 8px 0; border-radius: 15px; border: 1px solid #eee; box-sizing: border-box; }
-        .btn-action { background: var(--primary-pink); color: white; border: none; cursor: pointer; font-weight: bold; }
+        #panel-admin { display: none; background: white; padding: 30px; border-radius: 30px; margin-bottom: 40px; border: 3px dashed var(--primary-pink); position: relative; }
+        .btn-cerrar-admin { position: absolute; top: 15px; right: 15px; background: #fff0f6; color: var(--primary-pink); border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 20px; }
+        input, select, button { font-family: 'Fredoka'; width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-action { background: var(--primary-pink); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-action:hover { background: var(--secondary-pink); }
 
-        .floating-admin { position: fixed; bottom: 30px; right: 30px; background: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; z-index: 1000; border: 3px solid var(--primary-pink); }
+        .floating-admin { position: fixed; bottom: 30px; right: 30px; background: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 1000; border: 2px solid var(--primary-pink); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -105,24 +98,22 @@
 <div class="container">
     <h1 class="logo-infantil" onclick="navegar('inicio')">Mundo Mágico</h1>
     
-    <!-- SECCIÓN INICIO -->
     <div id="seccion-inicio">
         <div class="carousel-outer">
             <div id="slider"></div>
         </div>
         <div class="bienvenida-texto">
             <h2>¡Bienvenidos a nuestro mundo de colores! 🌈</h2>
-            <p>Explora nuestras categorías en el menú lateral</p>
+            <p>Explora nuestras categorías llenas de magia y alegría</p>
         </div>
     </div>
 
-    <!-- PANEL ADMIN -->
     <div id="panel-admin">
         <button class="btn-cerrar-admin" onclick="cerrarPanel()">← Volver</button>
         <div class="admin-grid">
             <div>
                 <h3>👗 Nuevo Producto</h3>
-                <input type="text" id="p-nombre" placeholder="Nombre">
+                <input type="text" id="p-nombre" placeholder="Nombre del producto">
                 <input type="number" id="p-precio" placeholder="Precio $">
                 <select id="p-categoria">
                     <option value="bebe">Bebé</option>
@@ -130,18 +121,17 @@
                     <option value="colegial">Colegial</option>
                 </select>
                 <input type="file" id="p-foto" accept="image/*">
-                <button class="btn-action" onclick="subirProducto()">Publicar</button>
+                <button class="btn-action" onclick="subirProducto()">Publicar Producto</button>
             </div>
             <div>
-                <h3>🖼️ Gestión Carrusel</h3>
+                <h3>🖼️ Banner Carrusel</h3>
                 <input type="file" id="c-foto" accept="image/*">
-                <button class="btn-action" onclick="subirCarrusel()">Subir Foto</button>
+                <button class="btn-action" onclick="subirCarrusel()">Añadir al Inicio</button>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN CATÁLOGO -->
-    <h2 id="titulo-seccion" style="text-align: center; color: var(--primary-pink); margin: 20px 0; text-transform: uppercase; display: none;"></h2>
+    <h2 id="titulo-seccion" style="text-align: center; color: var(--secondary-pink); margin: 30px 0; text-transform: uppercase; display: none;"></h2>
     <div id="catalogo"></div>
 </div>
 
@@ -150,21 +140,18 @@
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
     
-    // Configuración Supabase
     const supabase = createClient('https://zvmcjmjbedwaftejdduu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bWNqbWpiZWR3YWZ0ZWpkZHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMTI4NDksImV4cCI6MjA5MTc4ODg0OX0.Hm4zcGTr04pY13yOXQx26wR_D6GW-Ry5yiSrWTy556k');
 
     const TIENDA_ID = 'mundo_magico';
     let todosLosProductos = [];
 
-    // --- NAVEGACIÓN Y MENÚ ---
     window.toggleMenu = () => {
         document.getElementById('sideMenu').classList.toggle('active');
         document.getElementById('overlay').classList.toggle('active');
     };
 
     window.navegar = (destino) => {
-        const sideMenu = document.getElementById('sideMenu');
-        if(sideMenu.classList.contains('active')) toggleMenu();
+        if(document.getElementById('sideMenu').classList.contains('active')) toggleMenu();
 
         const inicio = document.getElementById('seccion-inicio');
         const catalogo = document.getElementById('catalogo');
@@ -181,16 +168,15 @@
             
             if(destino === 'todos') {
                 renderizar(todosLosProductos);
-                titulo.innerText = "Nuestro Catálogo Completo";
+                titulo.innerText = "Catálogo Completo";
             } else {
                 renderizar(todosLosProductos.filter(p => p.categoria === destino));
-                titulo.innerText = "Sección: " + destino;
+                titulo.innerText = "Colección: " + destino;
             }
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // --- CARGA DE DATOS ---
     async function init() {
         await cargarCarrusel();
         await cargarProductos();
@@ -218,15 +204,14 @@
             <div class="card">
                 <img src="${p.imagen_url}">
                 <div style="padding:15px">
-                    <h3>${p.nombre}</h3>
-                    <strong style="color:var(--primary-pink); font-size:1.4rem">$${p.precio}</strong>
+                    <h3 style="margin:10px 0; font-size:1.1rem">${p.nombre}</h3>
+                    <strong style="color:var(--secondary-pink); font-size:1.3rem">$${p.precio}</strong>
                 </div>
             </div>
         `).join('');
     }
 
-    // --- FUNCIONES ADMIN (CRUD) ---
-    window.accesoEditor = () => { if(prompt("Clave:") === "1234") document.getElementById('panel-admin').style.display = 'block'; };
+    window.accesoEditor = () => { if(prompt("Clave de Administrador:") === "1234") document.getElementById('panel-admin').style.display = 'block'; };
     window.cerrarPanel = () => { document.getElementById('panel-admin').style.display = 'none'; };
 
     window.subirProducto = async () => {
@@ -235,35 +220,28 @@
         const categoria = document.getElementById('p-categoria').value;
         const fotoFile = document.getElementById('p-foto').files[0];
 
-        if (!nombre || !precio || !fotoFile) {
-            alert("Por favor completa todos los campos");
-            return;
-        }
+        if (!nombre || !precio || !fotoFile) return alert("Por favor completa todos los datos");
 
         try {
-            const fileName = `${Date.now()}_${fotoFile.name}`;
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('productos')
-                .upload(fileName, fotoFile);
-
-            if (uploadError) throw uploadError;
+            const fileName = `prod_${Date.now()}`;
+            const { data: upData, error: upErr } = await supabase.storage.from('productos').upload(fileName, fotoFile);
+            if (upErr) throw upErr;
 
             const { data: urlData } = supabase.storage.from('productos').getPublicUrl(fileName);
-            const imagen_url = urlData.publicUrl;
-
-            const { error: insertError } = await supabase.from('productos').insert([{
-                nombre, precio: parseFloat(precio), categoria, imagen_url, tienda_id: TIENDA_ID
+            
+            const { error: insErr } = await supabase.from('productos').insert([{
+                nombre, precio: parseFloat(precio), categoria, imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID
             }]);
 
-            if (insertError) throw insertError;
-            alert("Producto guardado!");
+            if (insErr) throw insErr;
+            alert("¡Producto añadido con éxito!");
             location.reload();
-        } catch (e) { alert("Error al subir: " + e.message); }
+        } catch (e) { alert("Error: " + e.message); }
     };
 
     window.subirCarrusel = async () => {
         const fotoFile = document.getElementById('c-foto').files[0];
-        if (!fotoFile) return alert("Selecciona una foto");
+        if (!fotoFile) return alert("Selecciona una imagen");
 
         try {
             const fileName = `banner_${Date.now()}`;
@@ -271,7 +249,7 @@
             const { data: urlData } = supabase.storage.from('carrusel').getPublicUrl(fileName);
             
             await supabase.from('carrusel').insert([{ imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID }]);
-            alert("Carrusel actualizado!");
+            alert("¡Banner actualizado!");
             location.reload();
         } catch (e) { alert("Error: " + e.message); }
     };
