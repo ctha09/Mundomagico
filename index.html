@@ -196,6 +196,32 @@
         .cart-badge.animar { animation: pop 0.35s cubic-bezier(0.36,0.07,0.19,0.97); }
         @keyframes pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5)} }
 
+        /* ── TALLES ── */
+        .talles-label { font-size: 0.85rem; color: #888; margin: 8px 0 4px 2px; display: block; }
+        .talles-admin-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+        .talle-chip-admin {
+            padding: 6px 14px; border-radius: 20px; border: 2px solid #eee;
+            background: #fafafa; color: #888; font-family: 'Fredoka'; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.15s; user-select: none;
+        }
+        .talle-chip-admin.activo { border-color: var(--primary-pink); background: #fff0f6; color: var(--secondary-pink); font-weight: 700; }
+        .talles-input-custom { display: flex; gap: 6px; margin-top: 6px; }
+        .talles-input-custom input { margin: 0; padding: 8px 12px; font-size: 0.9rem; }
+        .talles-input-custom button { width: auto; padding: 8px 14px; margin: 0; background: var(--primary-pink); color: white; border-radius: 10px; border: none; cursor: pointer; font-family: 'Fredoka'; font-size: 0.9rem; }
+
+        /* Selector de talle en cards */
+        .card-talles { padding: 0 15px 8px; text-align: left; }
+        .card-talles-label { font-size: 0.82rem; color: #aaa; margin-bottom: 5px; display: block; }
+        .talles-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+        .talle-chip {
+            padding: 4px 11px; border-radius: 16px; border: 2px solid #f0f0f0;
+            background: white; color: #888; font-family: 'Fredoka'; font-size: 0.88rem;
+            cursor: pointer; transition: all 0.15s; user-select: none;
+        }
+        .talle-chip.seleccionado { border-color: var(--secondary-pink); background: var(--secondary-pink); color: white; font-weight: 700; }
+        .talle-requerido { font-size: 0.78rem; color: var(--error); margin: 4px 0 0 2px; display: none; }
+        .talle-requerido.visible { display: block; }
+
         /* Botón agregar al carrito en cada card */
         .btn-add-cart {
             width: calc(100% - 30px); margin: 0 15px 15px; padding: 10px;
@@ -260,7 +286,42 @@
         .btn-vaciar { width: 100%; padding: 10px; background: none; border: none; color: #ccc; font-family: 'Fredoka'; font-size: 0.95rem; cursor: pointer; margin: 6px 0 0; }
         .btn-vaciar:hover { color: var(--error); }
 
-        /* RLS Warning banner */
+        /* Carrusel por sección */
+        .seccion-carousel-outer {
+            width: 100%; height: 260px; border-radius: 30px; overflow: hidden;
+            border: 6px solid white; background: #f5f5f5; margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); position: relative; display: none;
+        }
+        .seccion-slider { display: flex; height: 100%; transition: transform 1s ease; }
+        .seccion-slider img { min-width: 100%; height: 100%; object-fit: cover; }
+
+        /* Admin: gestión de banners */
+        .admin-banners-wrap { margin-top: 14px; }
+        .admin-banner-select { margin-bottom: 10px; }
+        .banners-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px; margin-top: 10px; max-height: 280px; overflow-y: auto;
+        }
+        .banner-thumb {
+            position: relative; border-radius: 12px; overflow: hidden;
+            border: 2px solid #f0f0f0; aspect-ratio: 16/9; background: #f5f5f5;
+        }
+        .banner-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .banner-thumb .banner-seccion-tag {
+            position: absolute; top: 5px; left: 5px; background: rgba(0,0,0,0.55);
+            color: white; font-size: 0.7rem; padding: 2px 7px; border-radius: 8px;
+        }
+        .banner-thumb .btn-del-banner {
+            position: absolute; top: 4px; right: 4px; background: var(--error);
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+            font-size: 0.8rem; cursor: pointer; padding: 0; margin: 0; display: flex;
+            align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
+        }
+        .banner-thumb:hover .btn-del-banner { opacity: 1; }
+        .banners-vacio { text-align: center; color: #ccc; font-size: 0.95rem; padding: 20px 0; }
+
+        /* Select de sección para subir banner */
+        .banner-seccion-select { margin-bottom: 8px; }
         .security-banner { background: #fff3cd; border: 2px solid #ffc107; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; display: none; }
         .security-banner.visible { display: block; }
         .security-banner p { margin: 0; color: #856404; font-size: 0.95rem; }
@@ -352,6 +413,34 @@
                 </select>
                 <span class="field-error" id="err-cat">Seleccioná una categoría</span>
 
+                <span class="talles-label">👕 Talles disponibles (opcional)</span>
+                <div class="talles-admin-wrap" id="talles-admin-chips">
+                    <div class="talle-chip-admin" data-talle="RN">RN</div>
+                    <div class="talle-chip-admin" data-talle="0-3m">0-3m</div>
+                    <div class="talle-chip-admin" data-talle="3-6m">3-6m</div>
+                    <div class="talle-chip-admin" data-talle="6-9m">6-9m</div>
+                    <div class="talle-chip-admin" data-talle="9-12m">9-12m</div>
+                    <div class="talle-chip-admin" data-talle="1">1</div>
+                    <div class="talle-chip-admin" data-talle="2">2</div>
+                    <div class="talle-chip-admin" data-talle="3">3</div>
+                    <div class="talle-chip-admin" data-talle="4">4</div>
+                    <div class="talle-chip-admin" data-talle="5">5</div>
+                    <div class="talle-chip-admin" data-talle="6">6</div>
+                    <div class="talle-chip-admin" data-talle="8">8</div>
+                    <div class="talle-chip-admin" data-talle="10">10</div>
+                    <div class="talle-chip-admin" data-talle="12">12</div>
+                    <div class="talle-chip-admin" data-talle="14">14</div>
+                    <div class="talle-chip-admin" data-talle="XS">XS</div>
+                    <div class="talle-chip-admin" data-talle="S">S</div>
+                    <div class="talle-chip-admin" data-talle="M">M</div>
+                    <div class="talle-chip-admin" data-talle="L">L</div>
+                    <div class="talle-chip-admin" data-talle="XL">XL</div>
+                </div>
+                <div class="talles-input-custom">
+                    <input type="text" id="talle-custom" placeholder="Talle personalizado..." style="flex:1">
+                    <button type="button" onclick="agregarTalleCustom()">+ Agregar</button>
+                </div>
+
                 <div class="img-preview" id="preview-prod" onclick="document.getElementById('p-foto').click()">
                     <div class="placeholder"><span>📷</span><small>Clic para seleccionar imagen</small></div>
                 </div>
@@ -363,9 +452,19 @@
                 <button class="btn-action" id="btn-subir-prod" onclick="subirProducto()">Publicar Producto</button>
             </div>
 
-            <!-- Nuevo banner carrusel -->
+            <!-- Banners Carrusel -->
             <div>
-                <h3>🖼️ Banner Carrusel</h3>
+                <h3>🖼️ Banners Carrusel</h3>
+
+                <label style="font-size:0.85rem;color:#888;margin:4px 0 2px;display:block">Sección del banner</label>
+                <select id="c-seccion" class="banner-seccion-select">
+                    <option value="inicio">🏠 Inicio</option>
+                    <option value="todos">✨ Ver Todo</option>
+                    <option value="bebe">👶 Bebé</option>
+                    <option value="ninos">🎈 Niños</option>
+                    <option value="colegial">🎒 Colegial</option>
+                </select>
+
                 <div class="img-preview" id="preview-car" onclick="document.getElementById('c-foto').click()">
                     <div class="placeholder"><span>🌅</span><small>Clic para seleccionar imagen</small></div>
                 </div>
@@ -374,12 +473,33 @@
                 <span class="field-error" id="err-car">Seleccioná una imagen</span>
 
                 <div class="progress-bar" id="prog-car"><div class="progress-fill" id="fill-car"></div></div>
-                <button class="btn-action" id="btn-subir-car" onclick="subirCarrusel()">Añadir al Inicio</button>
+                <button class="btn-action" id="btn-subir-car" onclick="subirCarrusel()">Añadir Banner</button>
+
+                <div class="admin-banners-wrap">
+                    <label style="font-size:0.85rem;color:#888;margin:8px 0 4px;display:block">📋 Banners existentes — clic en ✕ para eliminar</label>
+                    <select id="filtro-banners" onchange="renderAdminBanners()" style="margin-bottom:8px">
+                        <option value="">Todas las secciones</option>
+                        <option value="inicio">🏠 Inicio</option>
+                        <option value="todos">✨ Ver Todo</option>
+                        <option value="bebe">👶 Bebé</option>
+                        <option value="ninos">🎈 Niños</option>
+                        <option value="colegial">🎒 Colegial</option>
+                    </select>
+                    <div class="banners-grid" id="banners-grid">
+                        <div class="banners-vacio">Cargando...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <h2 id="titulo-seccion"></h2>
+
+    <!-- Carrusel por sección -->
+    <div class="seccion-carousel-outer" id="seccion-carousel-outer">
+        <div class="seccion-slider" id="seccion-slider"></div>
+    </div>
+
     <div id="catalogo-vacio" class="catalogo-vacio">
         <span>🛍️</span>
         <p>No hay productos en esta categoría todavía</p>
@@ -406,7 +526,7 @@
     <div class="carrito-box">
         <div class="carrito-header">
             <h2>🛒 Mi pedido</h2>
-            <button class="btn-cerrar-carrito" onclick="cerrarCarrito()">✕</button>
+            <button class="btn-cerrar-carrito" data-action="cerrar">✕</button>
         </div>
         <div class="carrito-items" id="carrito-items"></div>
         <div class="carrito-footer" id="carrito-footer" style="display:none">
@@ -414,10 +534,10 @@
                 <span>Total estimado</span>
                 <strong id="carrito-total-monto">$0</strong>
             </div>
-            <button class="btn-whatsapp" onclick="finalizarPorWhatsapp()">
+            <button class="btn-whatsapp" data-action="whatsapp">
                 <span style="font-size:1.4rem">📱</span> Finalizar pedido por WhatsApp
             </button>
-            <button class="btn-vaciar" onclick="vaciarCarrito()">Vaciar carrito</button>
+            <button class="btn-vaciar" data-action="vaciar">Vaciar carrito</button>
         </div>
     </div>
 </div>
@@ -505,6 +625,7 @@
         if (sesionActiva) {
             document.getElementById('panel-admin').style.display = 'block';
             document.getElementById('rls-warning').classList.add('visible');
+            renderAdminBanners();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             document.getElementById('login-modal').classList.add('active');
@@ -580,6 +701,8 @@
             catalogo.style.display = 'none';
             titulo.style.display = 'none';
             vacio.style.display = 'none';
+            document.getElementById('seccion-carousel-outer').style.display = 'none';
+            if (seccionCarruselInterval) clearInterval(seccionCarruselInterval);
         } else {
             inicio.style.display = 'none';
             catalogo.style.display = 'grid';
@@ -596,6 +719,7 @@
             }
 
             titulo.innerText = textoTitulo;
+            renderCarruselSeccion(destino);
             renderizar(lista);
 
             if (lista.length === 0) {
@@ -609,39 +733,112 @@
     };
 
     // ─── CARGAR DATOS ─────────────────────────────────────────
+    let todosLosBanners = []; // cache de todos los banners
+    let seccionCarruselInterval = null;
+
     async function init() {
-        // Verificar si ya hay sesión activa
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             sesionActiva = session.user;
             document.getElementById('admin-email-label').textContent = '👤 ' + sesionActiva.email;
         }
-
         await cargarCarrusel();
         await cargarProductos();
     }
 
     async function cargarCarrusel() {
-        const { data, error } = await supabase.from('carrusel').select('*').eq('tienda_id', TIENDA_ID);
+        const { data, error } = await supabase.from('carrusel').select('*').eq('tienda_id', TIENDA_ID).order('created_at', { ascending: true });
+        todosLosBanners = data || [];
+        renderCarruselInicio();
+    }
+
+    function renderCarruselInicio() {
+        const banners = todosLosBanners.filter(b => (b.seccion || 'inicio') === 'inicio');
         const slider = document.getElementById('slider');
         const placeholder = document.getElementById('carousel-placeholder');
 
-        if (error || !data || data.length === 0) {
+        if (carruselInterval) clearInterval(carruselInterval);
+
+        if (!banners.length) {
             slider.style.display = 'none';
             placeholder.style.display = 'flex';
             return;
         }
-
         slider.style.display = 'flex';
         placeholder.style.display = 'none';
-        slider.innerHTML = data.map(f => `<img src="${f.imagen_url}" alt="Banner">`).join('');
+        slider.innerHTML = banners.map(f => `<img src="${f.imagen_url}" alt="Banner">`).join('');
+        slider.style.transform = 'translateX(0)';
 
         let i = 0;
-        if (carruselInterval) clearInterval(carruselInterval);
         carruselInterval = setInterval(() => {
-            i = (i + 1) % data.length;
+            i = (i + 1) % banners.length;
             slider.style.transform = `translateX(-${i * 100}%)`;
         }, 5000);
+    }
+
+    function renderCarruselSeccion(seccion) {
+        const banners = todosLosBanners.filter(b => (b.seccion || 'inicio') === seccion);
+        const outer = document.getElementById('seccion-carousel-outer');
+        const slider = document.getElementById('seccion-slider');
+
+        if (seccionCarruselInterval) clearInterval(seccionCarruselInterval);
+
+        if (!banners.length) {
+            outer.style.display = 'none';
+            return;
+        }
+        outer.style.display = 'block';
+        slider.innerHTML = banners.map(f => `<img src="${f.imagen_url}" alt="Banner">`).join('');
+        slider.style.transform = 'translateX(0)';
+
+        let i = 0;
+        seccionCarruselInterval = setInterval(() => {
+            i = (i + 1) % banners.length;
+            slider.style.transform = `translateX(-${i * 100}%)`;
+        }, 5000);
+    }
+
+    // Renderizar grilla de banners en el admin
+    window.renderAdminBanners = () => {
+        const filtro = document.getElementById('filtro-banners')?.value || '';
+        const grid = document.getElementById('banners-grid');
+        if (!grid) return;
+        const lista = filtro ? todosLosBanners.filter(b => (b.seccion || 'inicio') === filtro) : todosLosBanners;
+
+        const seccionNombre = { inicio: 'Inicio', todos: 'Ver Todo', bebe: 'Bebé', ninos: 'Niños', colegial: 'Colegial' };
+        if (!lista.length) { grid.innerHTML = '<div class="banners-vacio">No hay banners todavía</div>'; return; }
+
+        grid.innerHTML = lista.map(b => `
+            <div class="banner-thumb" data-id="${b.id}">
+                <img src="${b.imagen_url}" alt="Banner">
+                <span class="banner-seccion-tag">${seccionNombre[b.seccion || 'inicio'] || b.seccion}</span>
+                <button class="btn-del-banner" data-action="del-banner" data-id="${b.id}" title="Eliminar">✕</button>
+            </div>
+        `).join('');
+    };
+
+    async function eliminarBanner(id) {
+        const banner = todosLosBanners.find(b => String(b.id) === String(id));
+        if (!banner) return;
+
+        if (!confirm('¿Eliminar este banner?')) return;
+
+        try {
+            // Eliminar de storage si la URL es de Supabase
+            if (banner.imagen_url.includes('supabase')) {
+                const parts = banner.imagen_url.split('/carrusel/');
+                if (parts[1]) await supabase.storage.from('carrusel').remove([parts[1]]);
+            }
+            const { error } = await supabase.from('carrusel').delete().eq('id', id);
+            if (error) throw error;
+
+            todosLosBanners = todosLosBanners.filter(b => String(b.id) !== String(id));
+            renderAdminBanners();
+            renderCarruselInicio();
+            mostrarToast('🗑️ Banner eliminado', 'success', 2000);
+        } catch (e) {
+            mostrarToast('❌ Error al eliminar: ' + e.message, 'error', 4000);
+        }
     }
 
     async function cargarProductos() {
@@ -659,61 +856,93 @@
     }
 
     // ─── CARRITO ──────────────────────────────────────────────
-    const WHATSAPP_NUM = '5493XXXXXXXXX'; // ← Reemplazá con tu número (código de país + número, sin +)
-    let carrito = JSON.parse(localStorage.getItem('carrito_mm') || '[]');
+    const WHATSAPP_NUM = '5493XXXXXXXXX'; // ← Reemplazá con tu número
+    let carrito = [];
+
+    // Cargar desde localStorage de forma segura
+    try { carrito = JSON.parse(localStorage.getItem('carrito_mm') || '[]'); } catch(e) { carrito = []; }
 
     function guardarCarrito() {
-        localStorage.setItem('carrito_mm', JSON.stringify(carrito));
+        try { localStorage.setItem('carrito_mm', JSON.stringify(carrito)); } catch(e) {}
     }
 
     function actualizarBadge() {
         const total = carrito.reduce((acc, i) => acc + i.cantidad, 0);
         const badge = document.getElementById('cart-badge');
         const wrap = document.getElementById('floating-cart-wrap');
+        if (!badge || !wrap) return;
         badge.textContent = total;
-        wrap.classList.toggle('visible', total > 0);
-        badge.classList.remove('animar');
-        requestAnimationFrame(() => badge.classList.add('animar'));
+        if (total > 0) {
+            wrap.style.display = 'block';
+            badge.classList.remove('animar');
+            requestAnimationFrame(() => badge.classList.add('animar'));
+        } else {
+            wrap.style.display = 'none';
+        }
     }
 
-    window.agregarAlCarrito = (id) => {
-        const prod = todosLosProductos.find(p => p.id == id);
+    function agregarAlCarrito(id) {
+        const prod = todosLosProductos.find(p => String(p.id) === String(id));
         if (!prod) return;
-        const existe = carrito.find(i => i.id == id);
+
+        // Verificar si el producto tiene talles y si se seleccionó uno
+        const talles = Array.isArray(prod.talles) && prod.talles.length > 0 ? prod.talles : [];
+        let talleSeleccionado = null;
+        if (talles.length > 0) {
+            const chipActivo = document.querySelector(`.talle-chip[data-prod="${id}"].seleccionado`);
+            if (!chipActivo) {
+                const aviso = document.getElementById(`talle-req-${id}`);
+                if (aviso) { aviso.classList.add('visible'); setTimeout(() => aviso.classList.remove('visible'), 2500); }
+                mostrarToast('⚠️ Seleccioná un talle primero', 'warning', 2000);
+                return;
+            }
+            talleSeleccionado = chipActivo.dataset.talle;
+        }
+
+        // Clave única por producto + talle
+        const clave = talleSeleccionado ? `${id}_${talleSeleccionado}` : String(id);
+        const existe = carrito.find(i => i.clave === clave);
         if (existe) {
             existe.cantidad++;
         } else {
-            carrito.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, imagen_url: prod.imagen_url, cantidad: 1 });
+            carrito.push({
+                clave,
+                id: prod.id,
+                nombre: prod.nombre,
+                precio: prod.precio,
+                imagen_url: prod.imagen_url,
+                talle: talleSeleccionado,
+                cantidad: 1
+            });
         }
         guardarCarrito();
         actualizarBadge();
         mostrarToast('🛒 ¡Agregado al carrito!', 'success', 1800);
 
-        // feedback visual en el botón
         const btn = document.querySelector(`.btn-add-cart[data-id="${id}"]`);
         if (btn) {
             btn.classList.add('added');
-            btn.textContent = '✓ Agregado';
+            btn.innerHTML = '✓ Agregado';
             setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '🛒 Agregar al carrito'; }, 1500);
         }
-    };
+    }
 
-    window.cambiarCantidad = (id, delta) => {
-        const item = carrito.find(i => i.id == id);
+    function cambiarCantidad(clave, delta) {
+        const item = carrito.find(i => i.clave === clave);
         if (!item) return;
         item.cantidad += delta;
-        if (item.cantidad <= 0) carrito = carrito.filter(i => i.id != id);
+        if (item.cantidad <= 0) carrito = carrito.filter(i => i.clave !== clave);
         guardarCarrito();
         actualizarBadge();
         renderCarrito();
-    };
+    }
 
-    window.eliminarDelCarrito = (id) => {
-        carrito = carrito.filter(i => i.id != id);
+    function eliminarDelCarrito(clave) {
+        carrito = carrito.filter(i => i.clave !== clave);
         guardarCarrito();
         actualizarBadge();
         renderCarrito();
-    };
+    }
 
     window.vaciarCarrito = () => {
         carrito = [];
@@ -725,13 +954,10 @@
     function renderCarrito() {
         const container = document.getElementById('carrito-items');
         const footer = document.getElementById('carrito-footer');
+        if (!container) return;
 
         if (carrito.length === 0) {
-            container.innerHTML = `
-                <div class="carrito-vacio">
-                    <span>🛍️</span>
-                    <p>Tu carrito está vacío</p>
-                </div>`;
+            container.innerHTML = `<div class="carrito-vacio"><span>🛍️</span><p>Tu carrito está vacío</p></div>`;
             footer.style.display = 'none';
             return;
         }
@@ -741,13 +967,14 @@
                 <img src="${item.imagen_url}" alt="${item.nombre}">
                 <div class="carrito-item-info">
                     <h4>${item.nombre}</h4>
-                    <span>$${Number(item.precio).toLocaleString('es-AR')}</span>
+                    ${item.talle ? `<span style="font-size:0.82rem;background:#fff0f6;color:var(--secondary-pink);padding:2px 8px;border-radius:10px;font-weight:700">Talle: ${item.talle}</span>` : ''}
+                    <span style="display:block;margin-top:3px">$${Number(item.precio).toLocaleString('es-AR')}</span>
                 </div>
                 <div class="carrito-item-controls">
-                    <button class="qty-btn" onclick="cambiarCantidad(${item.id}, -1)">−</button>
+                    <button class="qty-btn" data-action="restar" data-id="${item.clave}">−</button>
                     <span class="qty-num">${item.cantidad}</span>
-                    <button class="qty-btn" onclick="cambiarCantidad(${item.id}, 1)">+</button>
-                    <button class="btn-eliminar" onclick="eliminarDelCarrito(${item.id})">🗑️</button>
+                    <button class="qty-btn" data-action="sumar" data-id="${item.clave}">+</button>
+                    <button class="btn-eliminar" data-action="eliminar" data-id="${item.clave}">🗑️</button>
                 </div>
             </div>
         `).join('');
@@ -766,57 +993,117 @@
         document.getElementById('carrito-modal').classList.remove('active');
     };
 
-    // Cerrar al hacer clic fuera del box
-    document.getElementById('carrito-modal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('carrito-modal')) cerrarCarrito();
-    });
-
     window.finalizarPorWhatsapp = () => {
         if (carrito.length === 0) return;
         const total = carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
         let msg = '¡Hola! Quiero hacer el siguiente pedido en *Mundo Mágico* 🌈\n\n';
         carrito.forEach(item => {
-            msg += `▪️ *${item.nombre}* x${item.cantidad} — $${Number(item.precio * item.cantidad).toLocaleString('es-AR')}\n`;
+            const talleStr = item.talle ? ` — Talle: *${item.talle}*` : '';
+            msg += `▪️ *${item.nombre}*${talleStr} x${item.cantidad} — $${Number(item.precio * item.cantidad).toLocaleString('es-AR')}\n`;
         });
         msg += `\n*Total estimado: $${total.toLocaleString('es-AR')}*\n\n¿Está disponible? 😊`;
-        const url = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`;
-        window.open(url, '_blank');
+        window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // Inicializar badge al cargar
+    // ── Event delegation: un solo listener para TODO
+    document.addEventListener('click', (e) => {
+        // Chip de talle en las cards del catálogo
+        const talleChip = e.target.closest('.talle-chip');
+        if (talleChip) {
+            const prodId = talleChip.dataset.prod;
+            // Deseleccionar otros chips del mismo producto
+            document.querySelectorAll(`.talle-chip[data-prod="${prodId}"]`).forEach(c => c.classList.remove('seleccionado'));
+            talleChip.classList.add('seleccionado');
+            // Ocultar aviso si estaba visible
+            const aviso = document.getElementById(`talle-req-${prodId}`);
+            if (aviso) aviso.classList.remove('visible');
+            return;
+        }
+
+        // Chip de talle en el panel ADMIN (toggle activo)
+        const talleAdmin = e.target.closest('.talle-chip-admin');
+        if (talleAdmin) { talleAdmin.classList.toggle('activo'); return; }
+
+        // Botón "Agregar al carrito" en las cards
+        const addBtn = e.target.closest('.btn-add-cart');
+        if (addBtn) { agregarAlCarrito(addBtn.dataset.id); return; }
+
+        // Botón abrir carrito flotante
+        const cartBtn = e.target.closest('.floating-cart');
+        if (cartBtn) { window.abrirCarrito(); return; }
+
+        // Botones dentro del modal del carrito (dinámicos)
+        const actionEl = e.target.closest('[data-action]');
+        const action = actionEl?.dataset.action;
+        const id = actionEl?.dataset.id;
+
+        if (action === 'del-banner') { eliminarBanner(id); return; }
+        if (action === 'sumar') { cambiarCantidad(id, 1); return; }
+        if (action === 'restar') { cambiarCantidad(id, -1); return; }
+        if (action === 'eliminar') { eliminarDelCarrito(id); return; }
+        if (action === 'cerrar') { cerrarCarrito(); return; }
+        if (action === 'whatsapp') { finalizarPorWhatsapp(); return; }
+        if (action === 'vaciar') { vaciarCarrito(); return; }
+
+        // Cerrar modal al hacer clic en el fondo oscuro
+        if (e.target.id === 'carrito-modal') { cerrarCarrito(); return; }
+    });
+
+    // ── Funciones admin de talles ──────────────────────────────
+    window.agregarTalleCustom = () => {
+        const input = document.getElementById('talle-custom');
+        const val = input.value.trim().toUpperCase();
+        if (!val) return;
+        const wrap = document.getElementById('talles-admin-chips');
+        // Evitar duplicados
+        if (wrap.querySelector(`[data-talle="${val}"]`)) { input.value = ''; return; }
+        const chip = document.createElement('div');
+        chip.className = 'talle-chip-admin activo';
+        chip.dataset.talle = val;
+        chip.textContent = val;
+        wrap.appendChild(chip);
+        input.value = '';
+    };
+
+    // Inicializar badge
     actualizarBadge();
 
     // ─── RENDERIZAR CARDS ─────────────────────────────────────
+    function buildCardHTML(p) {
+        const talles = Array.isArray(p.talles) && p.talles.length > 0 ? p.talles : [];
+        const tallesHTML = talles.length > 0 ? `
+            <div class="card-talles">
+                <span class="card-talles-label">Talles disponibles:</span>
+                <div class="talles-chips">
+                    ${talles.map(t => `<div class="talle-chip" data-prod="${p.id}" data-talle="${t}">${t}</div>`).join('')}
+                </div>
+                <div class="talle-requerido" id="talle-req-${p.id}">⚠️ Seleccioná un talle</div>
+            </div>` : '';
+        return `
+            <img src="${p.imagen_url}" alt="${p.nombre}" loading="lazy">
+            <div style="padding:15px 15px 5px">
+                <h3 style="margin:10px 0;font-size:1.1rem">${p.nombre}</h3>
+                <strong style="color:var(--secondary-pink);font-size:1.3rem">$${Number(p.precio).toLocaleString('es-AR')}</strong>
+            </div>
+            ${tallesHTML}
+            <button class="btn-add-cart" data-id="${p.id}">🛒 Agregar al carrito</button>
+        `;
+    }
+
     function renderizar(lista) {
         const catalogo = document.getElementById('catalogo');
         if (lista.length === 0) { catalogo.innerHTML = ''; return; }
-
         catalogo.innerHTML = lista.map(p => `
-            <div class="card" data-id="${p.id}">
-                <img src="${p.imagen_url}" alt="${p.nombre}" loading="lazy">
-                <div style="padding:15px 15px 5px">
-                    <h3 style="margin:10px 0;font-size:1.1rem">${p.nombre}</h3>
-                    <strong style="color:var(--secondary-pink);font-size:1.3rem">$${Number(p.precio).toLocaleString('es-AR')}</strong>
-                </div>
-                <button class="btn-add-cart" data-id="${p.id}" onclick="agregarAlCarrito(${p.id})">🛒 Agregar al carrito</button>
-            </div>
+            <div class="card" data-id="${p.id}">${buildCardHTML(p)}</div>
         `).join('');
     }
 
-    // Agregar una card al catálogo sin recargar
     function agregarCard(producto) {
         const catalogo = document.getElementById('catalogo');
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.id = producto.id;
-        card.innerHTML = `
-            <img src="${producto.imagen_url}" alt="${producto.nombre}" loading="lazy">
-            <div style="padding:15px 15px 5px">
-                <h3 style="margin:10px 0;font-size:1.1rem">${producto.nombre}</h3>
-                <strong style="color:var(--secondary-pink);font-size:1.3rem">$${Number(producto.precio).toLocaleString('es-AR')}</strong>
-            </div>
-            <button class="btn-add-cart" data-id="${producto.id}" onclick="agregarAlCarrito(${producto.id})">🛒 Agregar al carrito</button>
-        `;
+        card.innerHTML = buildCardHTML(producto);
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         catalogo.prepend(card);
@@ -833,6 +1120,9 @@
         const precio = document.getElementById('p-precio').value;
         const categoria = document.getElementById('p-categoria').value;
         const fotoFile = document.getElementById('p-foto').files[0];
+
+        // Recolectar talles seleccionados
+        const talles = [...document.querySelectorAll('.talle-chip-admin.activo')].map(c => c.dataset.talle);
 
         limpiarErrores('err-nombre', 'err-precio', 'err-cat', 'err-foto');
         let valido = true;
@@ -857,14 +1147,14 @@
 
             const { data: inserted, error: insErr } = await supabase.from('productos').insert([{
                 nombre, precio: parseFloat(precio), categoria,
-                imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID
+                imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID,
+                talles: talles.length > 0 ? talles : null
             }]).select().single();
 
             if (insErr) throw insErr;
 
             detenerProgreso();
 
-            // Actualizar estado local SIN recargar
             todosLosProductos.unshift(inserted);
             agregarCard(inserted);
 
@@ -875,6 +1165,7 @@
             document.getElementById('p-foto').value = '';
             document.getElementById('preview-prod').innerHTML = '<div class="placeholder"><span>📷</span><small>Clic para seleccionar imagen</small></div>';
             document.getElementById('info-prod').textContent = '';
+            document.querySelectorAll('.talle-chip-admin.activo').forEach(c => c.classList.remove('activo'));
 
             mostrarToast('✅ ¡Producto publicado con éxito!', 'success');
         } catch (e) {
@@ -890,6 +1181,7 @@
     // ─── SUBIR CARRUSEL ───────────────────────────────────────
     window.subirCarrusel = async () => {
         const fotoFile = document.getElementById('c-foto').files[0];
+        const seccion = document.getElementById('c-seccion').value || 'inicio';
         limpiarErrores('err-car');
         if (!fotoFile) { mostrarError('err-car', true); return; }
 
@@ -905,33 +1197,31 @@
             if (upErr) throw upErr;
 
             const { data: urlData } = supabase.storage.from('carrusel').getPublicUrl(fileName);
-            const { error: insErr } = await supabase.from('carrusel').insert([{
-                imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID
-            }]);
+            const { data: inserted, error: insErr } = await supabase.from('carrusel').insert([{
+                imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID, seccion
+            }]).select().single();
             if (insErr) throw insErr;
 
             detenerProgreso();
 
-            // Agregar imagen al carrusel sin recargar
-            const slider = document.getElementById('slider');
-            const img = document.createElement('img');
-            img.src = urlData.publicUrl;
-            img.alt = 'Banner';
-            slider.appendChild(img);
-            slider.style.display = 'flex';
-            document.getElementById('carousel-placeholder').style.display = 'none';
+            // Actualizar cache local
+            todosLosBanners.push(inserted);
+
+            // Refrescar carrusel correspondiente
+            if (seccion === 'inicio') renderCarruselInicio();
+            renderAdminBanners();
 
             document.getElementById('c-foto').value = '';
             document.getElementById('preview-car').innerHTML = '<div class="placeholder"><span>🌅</span><small>Clic para seleccionar imagen</small></div>';
             document.getElementById('info-car').textContent = '';
 
-            mostrarToast('✅ ¡Banner añadido al inicio!', 'success');
+            mostrarToast('✅ ¡Banner añadido a ' + seccion + '!', 'success');
         } catch (e) {
             detenerProgreso();
             mostrarToast('❌ Error: ' + e.message, 'error', 5000);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'Añadir al Inicio';
+            btn.innerHTML = 'Añadir Banner';
             document.getElementById('prog-car').classList.remove('visible');
         }
     };
