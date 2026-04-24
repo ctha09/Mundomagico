@@ -114,13 +114,14 @@
             .card-talles-label { font-size: 0.72rem; }
             .talle-chip { font-size: 0.75rem; padding: 3px 7px; border-radius: 12px; }
 
-            /* Carrusel inicio — más alto en mobile para no cortar la imagen */
-            .carousel-outer { height: 240px; border-radius: 20px; border-width: 4px; margin-bottom: 20px; }
-            .carousel-outer #slider img { object-fit: contain; background: white; }
+            /* Carrusel inicio — proporción fija 16:9 para que la imagen rellene perfecta */
+            .carousel-outer { height: auto; aspect-ratio: 16/9; border-radius: 20px; border-width: 4px; margin-bottom: 20px; }
+            .carousel-outer #slider { height: 100%; }
+            .carousel-outer #slider img { object-fit: cover; }
 
             /* Carrusel de sección */
-            .seccion-carousel-outer { height: 180px; border-radius: 20px; border-width: 4px; margin-bottom: 18px; }
-            .seccion-slider img { object-fit: contain; background: white; }
+            .seccion-carousel-outer { height: auto; aspect-ratio: 16/9; border-radius: 20px; border-width: 4px; margin-bottom: 18px; }
+            .seccion-slider img { object-fit: cover; }
 
             /* Título de sección */
             #titulo-seccion { font-size: 1.2rem; margin: 16px 0; }
