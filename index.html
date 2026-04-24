@@ -811,6 +811,56 @@
     let carruselInterval = null;
     let sesionActiva = null;
 
+    // ─── RENDER CARDS (definidas al inicio para que estén disponibles en todo el script) ───
+    function buildCardHTML(p) {
+        const talles = Array.isArray(p.talles) && p.talles.length > 0 ? p.talles : [];
+        const tallesHTML = talles.length > 0 ? `
+            <div class="card-talles">
+                <span class="card-talles-label">Talles disponibles:</span>
+                <div class="talles-chips">
+                    ${talles.map(t => `<div class="talle-chip" data-prod="${p.id}" data-talle="${t}">${t}</div>`).join('')}
+                </div>
+                <div class="talle-requerido" id="talle-req-${p.id}">⚠️ Seleccioná un talle</div>
+            </div>` : '';
+        return `
+            <img src="${p.imagen_url}" alt="${p.nombre}" loading="lazy">
+            <div style="padding:15px 15px 5px">
+                <h3 style="margin:10px 0;font-size:1.1rem">${p.nombre}</h3>
+                <strong style="color:var(--secondary-pink);font-size:1.3rem">$${Number(p.precio).toLocaleString('es-AR')}</strong>
+            </div>
+            ${tallesHTML}
+            <button class="btn-add-cart" data-id="${p.id}">🛒 Agregar al carrito</button>
+        `;
+    }
+
+    function renderizar(lista) {
+        const catalogo = document.getElementById('catalogo');
+        if (!lista || lista.length === 0) {
+            catalogo.innerHTML = '';
+            return;
+        }
+        catalogo.innerHTML = lista.map(p => `
+            <div class="card" data-id="${p.id}">${buildCardHTML(p)}</div>
+        `).join('');
+        catalogo.style.display = 'grid';
+    }
+
+    function agregarCard(producto) {
+        const catalogo = document.getElementById('catalogo');
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.id = producto.id;
+        card.innerHTML = buildCardHTML(producto);
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        catalogo.prepend(card);
+        requestAnimationFrame(() => {
+            card.style.transition = 'all 0.4s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        });
+    }
+
     // ─── TOAST ────────────────────────────────────────────────
     window.mostrarToast = (msg, tipo = '', duracion = 3000) => {
         const t = document.getElementById('toast');
@@ -1488,52 +1538,6 @@
 
     // Inicializar badge
     actualizarBadge();
-
-    // ─── RENDERIZAR CARDS ─────────────────────────────────────
-    function buildCardHTML(p) {
-        const talles = Array.isArray(p.talles) && p.talles.length > 0 ? p.talles : [];
-        const tallesHTML = talles.length > 0 ? `
-            <div class="card-talles">
-                <span class="card-talles-label">Talles disponibles:</span>
-                <div class="talles-chips">
-                    ${talles.map(t => `<div class="talle-chip" data-prod="${p.id}" data-talle="${t}">${t}</div>`).join('')}
-                </div>
-                <div class="talle-requerido" id="talle-req-${p.id}">⚠️ Seleccioná un talle</div>
-            </div>` : '';
-        return `
-            <img src="${p.imagen_url}" alt="${p.nombre}" loading="lazy">
-            <div style="padding:15px 15px 5px">
-                <h3 style="margin:10px 0;font-size:1.1rem">${p.nombre}</h3>
-                <strong style="color:var(--secondary-pink);font-size:1.3rem">$${Number(p.precio).toLocaleString('es-AR')}</strong>
-            </div>
-            ${tallesHTML}
-            <button class="btn-add-cart" data-id="${p.id}">🛒 Agregar al carrito</button>
-        `;
-    }
-
-    function renderizar(lista) {
-        const catalogo = document.getElementById('catalogo');
-        if (lista.length === 0) { catalogo.innerHTML = ''; return; }
-        catalogo.innerHTML = lista.map(p => `
-            <div class="card" data-id="${p.id}">${buildCardHTML(p)}</div>
-        `).join('');
-    }
-
-    function agregarCard(producto) {
-        const catalogo = document.getElementById('catalogo');
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.id = producto.id;
-        card.innerHTML = buildCardHTML(producto);
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        catalogo.prepend(card);
-        requestAnimationFrame(() => {
-            card.style.transition = 'all 0.4s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        });
-    }
 
     // ─── SUBIR PRODUCTO ───────────────────────────────────────
     window.subirProducto = async () => {
