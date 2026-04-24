@@ -402,6 +402,58 @@
         .security-banner { background: #fff3cd; border: 2px solid #ffc107; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; display: none; }
         .security-banner.visible { display: block; }
         .security-banner p { margin: 0; color: #856404; font-size: 0.95rem; }
+
+        /* ── GESTIÓN DE PRODUCTOS EN ADMIN ── */
+        .admin-productos-seccion { margin-top: 30px; border-top: 2px dashed #f0e0ea; padding-top: 24px; }
+        .admin-productos-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+        .admin-productos-header h3 { margin: 0; }
+        .filtro-prod-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filtro-prod-wrap select { width: auto; margin: 0; padding: 8px 12px; font-size: 0.9rem; }
+
+        .productos-admin-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px; max-height: 420px; overflow-y: auto;
+        }
+        .prod-admin-card {
+            background: #fafafa; border-radius: 16px; overflow: hidden;
+            border: 1.5px solid #f0f0f0; position: relative; transition: box-shadow 0.2s;
+        }
+        .prod-admin-card:hover { box-shadow: 0 4px 15px rgba(255,128,171,0.2); border-color: var(--primary-pink); }
+        .prod-admin-card img { width: 100%; height: 110px; object-fit: cover; display: block; }
+        .prod-admin-info { padding: 8px 10px; }
+        .prod-admin-info h4 { margin: 0 0 3px; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .prod-admin-info span { color: var(--secondary-pink); font-size: 0.85rem; font-weight: 700; }
+        .prod-admin-info small { display: block; color: #bbb; font-size: 0.72rem; margin-top: 1px; }
+        .prod-admin-actions { display: flex; gap: 6px; padding: 0 8px 8px; }
+        .btn-prod-edit, .btn-prod-del {
+            flex: 1; padding: 5px; border-radius: 8px; border: none; cursor: pointer;
+            font-size: 0.78rem; font-weight: 700; font-family: 'Fredoka'; margin: 0; transition: all 0.15s;
+        }
+        .btn-prod-edit { background: #fff0f6; color: var(--secondary-pink); }
+        .btn-prod-edit:hover { background: var(--primary-pink); color: white; }
+        .btn-prod-del { background: #fff0f0; color: var(--error); }
+        .btn-prod-del:hover { background: var(--error); color: white; }
+        .productos-admin-vacio { text-align: center; color: #ccc; font-size: 0.95rem; padding: 30px 0; grid-column: 1/-1; }
+
+        /* ── MODAL EDITAR PRODUCTO ── */
+        #edit-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 4500; display: none; align-items: center; justify-content: center; padding: 16px;
+        }
+        #edit-modal.active { display: flex; }
+        .edit-box {
+            background: white; border-radius: 24px; padding: 28px; width: 100%; max-width: 480px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            position: relative; animation: slideUp 0.3s ease;
+        }
+        .edit-box h2 { margin: 0 0 20px; color: var(--secondary-pink); font-size: 1.4rem; }
+        .edit-img-preview { width: 100%; height: 180px; border-radius: 12px; object-fit: cover; margin-bottom: 12px; border: 2px solid #f0f0f0; }
+        .edit-nueva-foto { background: #fff0f6; color: var(--secondary-pink); border: 2px dashed var(--primary-pink); border-radius: 10px; padding: 10px; font-size: 0.9rem; text-align: center; cursor: pointer; margin-bottom: 10px; display: block; }
+        .edit-nueva-foto:hover { background: var(--primary-pink); color: white; }
+        .edit-footer { display: flex; gap: 10px; margin-top: 16px; }
+        .btn-edit-guardar { flex: 1; background: var(--primary-pink); color: white; border: none; padding: 12px; border-radius: 12px; font-family: 'Fredoka'; font-size: 1rem; font-weight: 700; cursor: pointer; margin: 0; }
+        .btn-edit-guardar:hover { background: var(--secondary-pink); }
+        .btn-edit-cancelar { background: #f5f5f5; color: #888; border: none; padding: 12px 20px; border-radius: 12px; font-family: 'Fredoka'; font-size: 1rem; cursor: pointer; margin: 0; width: auto; }
     </style>
 </head>
 <body>
@@ -570,7 +622,25 @@
         </div>
     </div>
 
-    <h2 id="titulo-seccion"></h2>
+    <!-- SECCIÓN GESTIÓN DE PRODUCTOS -->
+    <div class="admin-productos-seccion" id="admin-productos-seccion" style="display:none">
+        <div class="admin-productos-header">
+            <h3>🗂️ Gestionar Productos</h3>
+            <div class="filtro-prod-wrap">
+                <select id="filtro-prod-cat" onchange="renderAdminProductos()">
+                    <option value="">Todas las categorías</option>
+                    <option value="bebe">👶 Bebé</option>
+                    <option value="ninos">🎈 Niños</option>
+                    <option value="colegial">🎒 Colegial</option>
+                </select>
+            </div>
+        </div>
+        <div class="productos-admin-grid" id="productos-admin-grid">
+            <div class="productos-admin-vacio">Cargando productos...</div>
+        </div>
+    </div>
+
+</div><!-- fin panel-admin -->
 
     <!-- Carrusel por sección -->
     <div class="seccion-carousel-outer" id="seccion-carousel-outer">
@@ -582,6 +652,58 @@
         <p>No hay productos en esta categoría todavía</p>
     </div>
     <div id="catalogo"></div>
+</div>
+
+<!-- MODAL EDITAR PRODUCTO -->
+<div id="edit-modal">
+    <div class="edit-box">
+        <h2>✏️ Editar Producto</h2>
+        <input type="hidden" id="edit-id">
+        <input type="hidden" id="edit-imagen-actual">
+        <img id="edit-img-preview" class="edit-img-preview" src="" alt="Imagen actual">
+        <label class="edit-nueva-foto" onclick="document.getElementById('edit-nueva-foto-input').click()">
+            📷 Cambiar imagen (opcional)
+        </label>
+        <input type="file" id="edit-nueva-foto-input" accept="image/*" style="display:none" onchange="previewEditFoto(this)">
+        <div class="file-info" id="edit-foto-info"></div>
+        <input type="text" id="edit-nombre" placeholder="Nombre del producto">
+        <input type="number" id="edit-precio" placeholder="Precio $" min="0" step="0.01">
+        <select id="edit-categoria">
+            <option value="bebe">👶 Bebé</option>
+            <option value="ninos">🎈 Niños</option>
+            <option value="colegial">🎒 Colegial</option>
+        </select>
+        <span style="font-size:0.85rem;color:#888;margin:8px 0 4px;display:block">👕 Talles</span>
+        <div class="talles-admin-wrap" id="edit-talles-chips">
+            <div class="talle-chip-admin" data-talle="RN">RN</div>
+            <div class="talle-chip-admin" data-talle="0-3m">0-3m</div>
+            <div class="talle-chip-admin" data-talle="3-6m">3-6m</div>
+            <div class="talle-chip-admin" data-talle="6-9m">6-9m</div>
+            <div class="talle-chip-admin" data-talle="9-12m">9-12m</div>
+            <div class="talle-chip-admin" data-talle="1">1</div>
+            <div class="talle-chip-admin" data-talle="2">2</div>
+            <div class="talle-chip-admin" data-talle="3">3</div>
+            <div class="talle-chip-admin" data-talle="4">4</div>
+            <div class="talle-chip-admin" data-talle="5">5</div>
+            <div class="talle-chip-admin" data-talle="6">6</div>
+            <div class="talle-chip-admin" data-talle="8">8</div>
+            <div class="talle-chip-admin" data-talle="10">10</div>
+            <div class="talle-chip-admin" data-talle="12">12</div>
+            <div class="talle-chip-admin" data-talle="14">14</div>
+            <div class="talle-chip-admin" data-talle="XS">XS</div>
+            <div class="talle-chip-admin" data-talle="S">S</div>
+            <div class="talle-chip-admin" data-talle="M">M</div>
+            <div class="talle-chip-admin" data-talle="L">L</div>
+            <div class="talle-chip-admin" data-talle="XL">XL</div>
+        </div>
+        <div class="progress-bar" id="prog-edit"><div class="progress-fill" id="fill-edit"></div></div>
+        <div class="edit-footer">
+            <button class="btn-edit-cancelar" onclick="cerrarEditModal()">Cancelar</button>
+            <button class="btn-edit-guardar" id="btn-guardar-edit" onclick="guardarEdicion()">
+                Guardar cambios
+            </button>
+        </div>
+    </div>
 </div>
 
 <div class="floating-admin" onclick="accesoEditor()" title="Administrar tienda">⚙️</div>
@@ -702,7 +824,9 @@
         if (sesionActiva) {
             document.getElementById('panel-admin').style.display = 'block';
             document.getElementById('rls-warning').classList.add('visible');
+            document.getElementById('admin-productos-seccion').style.display = 'block';
             renderAdminBanners();
+            renderAdminProductos();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             document.getElementById('login-modal').classList.add('active');
@@ -740,6 +864,9 @@
             document.getElementById('admin-email-label').textContent = '👤 ' + sesionActiva.email;
             document.getElementById('panel-admin').style.display = 'block';
             document.getElementById('rls-warning').classList.add('visible');
+            document.getElementById('admin-productos-seccion').style.display = 'block';
+            renderAdminBanners();
+            renderAdminProductos();
             mostrarToast('✅ Sesión iniciada correctamente', 'success');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (e) {
@@ -755,6 +882,7 @@
         sesionActiva = null;
         document.getElementById('panel-admin').style.display = 'none';
         document.getElementById('rls-warning').classList.remove('visible');
+        document.getElementById('admin-productos-seccion').style.display = 'none';
         mostrarToast('👋 Sesión cerrada', '', 2000);
     };
 
@@ -1082,26 +1210,176 @@
         window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // ── Event delegation: un solo listener para TODO
+    // ── Mostrar sección gestión al abrir panel ──────────────
+    window.renderAdminProductos = () => {
+        const filtro = document.getElementById('filtro-prod-cat')?.value || '';
+        const grid = document.getElementById('productos-admin-grid');
+        if (!grid) return;
+        const lista = filtro ? todosLosProductos.filter(p => p.categoria === filtro) : todosLosProductos;
+
+        if (!lista.length) {
+            grid.innerHTML = '<div class="productos-admin-vacio">No hay productos todavía</div>';
+            return;
+        }
+        const catIcon = { bebe: '👶', ninos: '🎈', colegial: '🎒' };
+        grid.innerHTML = lista.map(p => `
+            <div class="prod-admin-card">
+                <img src="${p.imagen_url}" alt="${p.nombre}">
+                <div class="prod-admin-info">
+                    <h4>${p.nombre}</h4>
+                    <span>$${Number(p.precio).toLocaleString('es-AR')}</span>
+                    <small>${catIcon[p.categoria] || ''} ${p.categoria}${p.talles?.length ? ' · ' + p.talles.join(', ') : ''}</small>
+                </div>
+                <div class="prod-admin-actions">
+                    <button class="btn-prod-edit" data-action="editar-prod" data-id="${p.id}">✏️ Editar</button>
+                    <button class="btn-prod-del" data-action="eliminar-prod" data-id="${p.id}">🗑️ Borrar</button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    // ── Eliminar producto ────────────────────────────────────
+    async function eliminarProducto(id) {
+        const prod = todosLosProductos.find(p => String(p.id) === String(id));
+        if (!prod) return;
+        if (!confirm(`¿Eliminar "${prod.nombre}"? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            // Eliminar imagen del storage
+            if (prod.imagen_url?.includes('supabase')) {
+                const parts = prod.imagen_url.split('/productos/');
+                if (parts[1]) await supabase.storage.from('productos').remove([parts[1]]);
+            }
+            const { error } = await supabase.from('productos').delete().eq('id', id);
+            if (error) throw error;
+
+            todosLosProductos = todosLosProductos.filter(p => String(p.id) !== String(id));
+            // Quitar la card del catálogo si está visible
+            document.querySelector(`.card[data-id="${id}"]`)?.remove();
+            renderAdminProductos();
+            mostrarToast('🗑️ Producto eliminado', 'success', 2000);
+        } catch (e) {
+            mostrarToast('❌ Error: ' + e.message, 'error', 4000);
+        }
+    }
+
+    // ── Abrir modal edición ──────────────────────────────────
+    function abrirEditModal(id) {
+        const prod = todosLosProductos.find(p => String(p.id) === String(id));
+        if (!prod) return;
+
+        document.getElementById('edit-id').value = prod.id;
+        document.getElementById('edit-imagen-actual').value = prod.imagen_url;
+        document.getElementById('edit-img-preview').src = prod.imagen_url;
+        document.getElementById('edit-nombre').value = prod.nombre;
+        document.getElementById('edit-precio').value = prod.precio;
+        document.getElementById('edit-categoria').value = prod.categoria;
+        document.getElementById('edit-nueva-foto-input').value = '';
+        document.getElementById('edit-foto-info').textContent = '';
+        document.getElementById('prog-edit').classList.remove('visible');
+
+        // Marcar talles actuales
+        const tallesActuales = prod.talles || [];
+        document.querySelectorAll('#edit-talles-chips .talle-chip-admin').forEach(chip => {
+            chip.classList.toggle('activo', tallesActuales.includes(chip.dataset.talle));
+        });
+
+        document.getElementById('edit-modal').classList.add('active');
+    }
+
+    window.cerrarEditModal = () => {
+        document.getElementById('edit-modal').classList.remove('active');
+    };
+
+    window.previewEditFoto = (input) => {
+        const file = input.files[0];
+        if (!file) return;
+        const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+        if (sizeMB > 5) { mostrarToast('⚠️ Imagen muy grande (máx 5MB)', 'warning'); input.value = ''; return; }
+        document.getElementById('edit-foto-info').textContent = `${file.name} · ${sizeMB} MB`;
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('edit-img-preview').src = e.target.result; };
+        reader.readAsDataURL(file);
+    };
+
+    // ── Guardar edición ──────────────────────────────────────
+    window.guardarEdicion = async () => {
+        const id = document.getElementById('edit-id').value;
+        const nombre = document.getElementById('edit-nombre').value.trim();
+        const precio = document.getElementById('edit-precio').value;
+        const categoria = document.getElementById('edit-categoria').value;
+        const nuevaFoto = document.getElementById('edit-nueva-foto-input').files[0];
+        const talles = [...document.querySelectorAll('#edit-talles-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
+
+        if (!nombre || !precio) { mostrarToast('⚠️ Completá nombre y precio', 'warning'); return; }
+
+        const btn = document.getElementById('btn-guardar-edit');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Guardando...';
+        document.getElementById('prog-edit').classList.add('visible');
+        const detenerProgreso = animarProgreso('fill-edit');
+
+        try {
+            let imagen_url = document.getElementById('edit-imagen-actual').value;
+
+            // Si hay nueva foto, subirla
+            if (nuevaFoto) {
+                const fileName = `prod_${TIENDA_ID}_${Date.now()}`;
+                const { error: upErr } = await supabase.storage.from('productos').upload(fileName, nuevaFoto);
+                if (upErr) throw upErr;
+                const { data: urlData } = supabase.storage.from('productos').getPublicUrl(fileName);
+                imagen_url = urlData.publicUrl;
+            }
+
+            const { data: updated, error } = await supabase.from('productos')
+                .update({ nombre, precio: parseFloat(precio), categoria, imagen_url, talles: talles.length > 0 ? talles : null })
+                .eq('id', id)
+                .select().single();
+            if (error) throw error;
+
+            detenerProgreso();
+
+            // Actualizar estado local
+            const idx = todosLosProductos.findIndex(p => String(p.id) === String(id));
+            if (idx !== -1) todosLosProductos[idx] = updated;
+
+            // Actualizar card en el catálogo si está visible
+            const card = document.querySelector(`.card[data-id="${id}"]`);
+            if (card) card.innerHTML = buildCardHTML(updated);
+
+            renderAdminProductos();
+            cerrarEditModal();
+            mostrarToast('✅ Producto actualizado', 'success');
+        } catch (e) {
+            detenerProgreso();
+            mostrarToast('❌ Error: ' + e.message, 'error', 5000);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Guardar cambios';
+            document.getElementById('prog-edit').classList.remove('visible');
+        }
+    };
     document.addEventListener('click', (e) => {
+        // Chip de talle en el modal de EDICIÓN (primero para evitar conflicto)
+        const talleEditChip = e.target.closest('#edit-talles-chips .talle-chip-admin');
+        if (talleEditChip) { talleEditChip.classList.toggle('activo'); return; }
+
         // Chip de talle en las cards del catálogo
         const talleChip = e.target.closest('.talle-chip');
         if (talleChip) {
             const prodId = talleChip.dataset.prod;
-            // Deseleccionar otros chips del mismo producto
             document.querySelectorAll(`.talle-chip[data-prod="${prodId}"]`).forEach(c => c.classList.remove('seleccionado'));
             talleChip.classList.add('seleccionado');
-            // Ocultar aviso si estaba visible
             const aviso = document.getElementById(`talle-req-${prodId}`);
             if (aviso) aviso.classList.remove('visible');
             return;
         }
 
-        // Chip de talle en el panel ADMIN (toggle activo)
+        // Chip de talle en el panel ADMIN
         const talleAdmin = e.target.closest('.talle-chip-admin');
         if (talleAdmin) { talleAdmin.classList.toggle('activo'); return; }
 
-        // Botón "Agregar al carrito" en las cards
+        // Botón "Agregar al carrito"
         const addBtn = e.target.closest('.btn-add-cart');
         if (addBtn) { agregarAlCarrito(addBtn.dataset.id); return; }
 
@@ -1109,21 +1387,23 @@
         const cartBtn = e.target.closest('.floating-cart');
         if (cartBtn) { window.abrirCarrito(); return; }
 
-        // Botones dentro del modal del carrito (dinámicos)
+        // Cerrar modales al hacer clic en el fondo
+        if (e.target.id === 'carrito-modal') { cerrarCarrito(); return; }
+        if (e.target.id === 'edit-modal') { cerrarEditModal(); return; }
+
         const actionEl = e.target.closest('[data-action]');
         const action = actionEl?.dataset.action;
         const id = actionEl?.dataset.id;
 
-        if (action === 'del-banner') { eliminarBanner(id); return; }
-        if (action === 'sumar') { cambiarCantidad(id, 1); return; }
-        if (action === 'restar') { cambiarCantidad(id, -1); return; }
-        if (action === 'eliminar') { eliminarDelCarrito(id); return; }
-        if (action === 'cerrar') { cerrarCarrito(); return; }
-        if (action === 'whatsapp') { finalizarPorWhatsapp(); return; }
-        if (action === 'vaciar') { vaciarCarrito(); return; }
-
-        // Cerrar modal al hacer clic en el fondo oscuro
-        if (e.target.id === 'carrito-modal') { cerrarCarrito(); return; }
+        if (action === 'editar-prod')   { abrirEditModal(id); return; }
+        if (action === 'eliminar-prod') { eliminarProducto(id); return; }
+        if (action === 'del-banner')    { eliminarBanner(id); return; }
+        if (action === 'sumar')         { cambiarCantidad(id, 1); return; }
+        if (action === 'restar')        { cambiarCantidad(id, -1); return; }
+        if (action === 'eliminar')      { eliminarDelCarrito(id); return; }
+        if (action === 'cerrar')        { cerrarCarrito(); return; }
+        if (action === 'whatsapp')      { finalizarPorWhatsapp(); return; }
+        if (action === 'vaciar')        { vaciarCarrito(); return; }
     });
 
     // ── Funciones admin de talles ──────────────────────────────
