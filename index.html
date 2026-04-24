@@ -835,6 +835,7 @@
 
     function renderizar(lista) {
         const catalogo = document.getElementById('catalogo');
+        console.log('renderizar llamada con', lista?.length, 'productos');
         if (!lista || lista.length === 0) {
             catalogo.innerHTML = '';
             return;
@@ -843,6 +844,7 @@
             <div class="card" data-id="${p.id}">${buildCardHTML(p)}</div>
         `).join('');
         catalogo.style.display = 'grid';
+        console.log('catalogo renderizado, display:', catalogo.style.display);
     }
 
     function agregarCard(producto) {
@@ -1006,18 +1008,21 @@
         const catalogo = document.getElementById('catalogo');
         const titulo = document.getElementById('titulo-seccion');
         const vacio = document.getElementById('catalogo-vacio');
+        const seccionCarousel = document.getElementById('seccion-carousel-outer');
+
+        console.log('navegar a:', destino, '— productos cargados:', todosLosProductos.length);
 
         if (destino === 'inicio') {
-            inicio.style.display = 'block';
-            catalogo.style.display = 'none';
-            titulo.style.display = 'none';
-            vacio.style.display = 'none';
-            document.getElementById('seccion-carousel-outer').style.display = 'none';
+            if (inicio) inicio.style.display = 'block';
+            if (catalogo) catalogo.style.display = 'none';
+            if (titulo) titulo.style.display = 'none';
+            if (vacio) vacio.style.display = 'none';
+            if (seccionCarousel) seccionCarousel.style.display = 'none';
             if (seccionCarruselInterval) clearInterval(seccionCarruselInterval);
         } else {
-            inicio.style.display = 'none';
-            catalogo.style.display = 'grid';
-            titulo.style.display = 'block';
+            if (inicio) inicio.style.display = 'none';
+            if (catalogo) { catalogo.style.display = 'grid'; }
+            if (titulo) titulo.style.display = 'block';
 
             let lista, textoTitulo;
             if (destino === 'todos') {
@@ -1029,15 +1034,16 @@
                 textoTitulo = `${iconos[destino] || ''} Colección: ${destino}`;
             }
 
-            titulo.innerText = textoTitulo;
+            if (titulo) titulo.innerText = textoTitulo;
+            console.log('lista a renderizar:', lista.length, 'categoria:', destino);
             renderCarruselSeccion(destino);
             renderizar(lista);
 
-            if (lista.length === 0) {
-                catalogo.style.display = 'none';
-                vacio.style.display = 'block';
+            if (!lista || lista.length === 0) {
+                if (catalogo) catalogo.style.display = 'none';
+                if (vacio) vacio.style.display = 'block';
             } else {
-                vacio.style.display = 'none';
+                if (vacio) vacio.style.display = 'none';
             }
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1155,8 +1161,13 @@
     async function cargarProductos() {
         const { data, error } = await supabase.from('productos').select('*').eq('tienda_id', TIENDA_ID).order('created_at', { ascending: false });
 
-        if (error) { mostrarToast('Error al cargar productos', 'error'); return; }
+        if (error) { 
+            console.error('Error cargando productos:', error);
+            mostrarToast('Error al cargar productos: ' + error.message, 'error'); 
+            return; 
+        }
 
+        console.log('Productos cargados:', data?.length, data);
         todosLosProductos = data || [];
         renderProductosInicio();
     }
