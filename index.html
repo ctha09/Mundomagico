@@ -1501,22 +1501,35 @@
         try {
             const fileName = `prod_${TIENDA_ID}_${Date.now()}`;
             const { error: upErr } = await supabase.storage.from('productos').upload(fileName, fotoFile, { upsert: false });
-            if (upErr) throw upErr;
+            if (upErr) throw new Error('Error al subir imagen: ' + (upErr.message || JSON.stringify(upErr)));
 
             const { data: urlData } = supabase.storage.from('productos').getPublicUrl(fileName);
 
-            const { data: inserted, error: insErr } = await supabase.from('productos').insert([{
+            // Intentar con talles primero
+            let insertData = {
                 nombre, precio: parseFloat(precio), categoria,
                 imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID,
                 talles: talles.length > 0 ? talles : null
-            }]).select().single();
+            };
 
-            if (insErr) throw insErr;
+            let { data: inserted, error: insErr } = await supabase.from('productos').insert([insertData]).select().single();
+
+            // Si falla por columna talles inexistente, reintentar sin ella
+            if (insErr && (insErr.message?.includes('talles') || insErr.code === '42703')) {
+                mostrarToast('⚠️ Columna talles no existe aún — guardando sin talles', 'warning', 3000);
+                delete insertData.talles;
+                const retry = await supabase.from('productos').insert([insertData]).select().single();
+                inserted = retry.data;
+                insErr = retry.error;
+            }
+
+            if (insErr) throw new Error('Error al guardar producto: ' + (insErr.message || insErr.details || JSON.stringify(insErr)));
 
             detenerProgreso();
 
             todosLosProductos.unshift(inserted);
             agregarCard(inserted);
+            renderAdminProductos();
 
             // Limpiar formulario
             document.getElementById('p-nombre').value = '';
@@ -1530,7 +1543,8 @@
             mostrarToast('✅ ¡Producto publicado con éxito!', 'success');
         } catch (e) {
             detenerProgreso();
-            mostrarToast('❌ Error: ' + e.message, 'error', 5000);
+            mostrarToast('❌ ' + (e.message || 'Error desconocido'), 'error', 6000);
+            console.error('Error subirProducto:', e);
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Publicar Producto';
