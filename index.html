@@ -432,7 +432,57 @@
             #productos-inicio { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
 
-        /* ── GESTIÓN DE PRODUCTOS EN ADMIN ── */
+        /* ── LOGIN / REGISTRO DE CLIENTES ── */
+        #user-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 4000; display: none; align-items: center; justify-content: center; padding: 16px;
+        }
+        #user-modal.active { display: flex; }
+        .user-box {
+            background: white; border-radius: 28px; padding: 32px 28px; width: 100%; max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15); position: relative; animation: slideUp 0.3s ease;
+            text-align: center;
+        }
+        .user-box .modal-close { position: absolute; top: 14px; right: 18px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #bbb; padding: 0; width: auto; margin: 0; }
+        .user-box .modal-close:hover { color: var(--secondary-pink); }
+        .user-box .user-icon { font-size: 3rem; margin-bottom: 6px; display: block; }
+        .user-box h2 { margin: 0 0 4px; color: var(--secondary-pink); font-size: 1.5rem; }
+        .user-box p { margin: 0 0 20px; color: #aaa; font-size: 0.95rem; }
+
+        .user-tabs { display: flex; background: #f5f5f5; border-radius: 14px; padding: 4px; margin-bottom: 20px; }
+        .user-tab {
+            flex: 1; padding: 8px; border-radius: 10px; border: none; cursor: pointer;
+            font-family: 'Fredoka'; font-size: 0.95rem; font-weight: 700; transition: all 0.2s;
+            background: none; color: #aaa; margin: 0;
+        }
+        .user-tab.active { background: white; color: var(--secondary-pink); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        .user-form { display: none; }
+        .user-form.active { display: block; }
+        .user-form .input-group { position: relative; margin: 8px 0; }
+        .user-form .input-group input { padding-left: 38px; }
+        .user-form .input-group .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.95rem; pointer-events: none; }
+        .user-form .field-error { text-align: left; }
+        .btn-user-action { background: var(--primary-pink); color: white; border: none; width: 100%; padding: 13px; border-radius: 14px; font-family: 'Fredoka'; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; transition: all 0.2s; }
+        .btn-user-action:hover:not(:disabled) { background: var(--secondary-pink); }
+        .btn-user-action:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Botón de usuario en esquina superior derecha */
+        .floating-user {
+            position: fixed; top: 20px; right: 20px; z-index: 1990;
+            background: white; border-radius: 20px; padding: 8px 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1); cursor: pointer;
+            display: flex; align-items: center; gap: 7px; font-size: 0.9rem;
+            font-weight: 700; color: var(--secondary-pink); transition: all 0.2s;
+            border: 1.5px solid #f0d0e0;
+        }
+        .floating-user:hover { box-shadow: 0 5px 16px rgba(255,64,129,0.2); }
+        .floating-user .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--primary-pink); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+
+        @media (max-width: 600px) {
+            .floating-user { top: 14px; right: 14px; padding: 6px 10px; font-size: 0.8rem; border-radius: 14px; }
+            .floating-user .user-name { display: none; }
+        }
         .admin-productos-seccion { margin-top: 30px; border-top: 2px dashed #f0e0ea; padding-top: 24px; }
         .admin-productos-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
         .admin-productos-header h3 { margin: 0; }
@@ -797,6 +847,62 @@
     </div>
 </div>
 
+<!-- MODAL LOGIN / REGISTRO CLIENTES -->
+<div id="user-modal">
+    <div class="user-box">
+        <button class="modal-close" onclick="cerrarUserModal()">✕</button>
+        <span class="user-icon">🌟</span>
+        <h2>¡Hola!</h2>
+        <p>Ingresá o creá tu cuenta para guardar tu carrito</p>
+
+        <div class="user-tabs">
+            <button class="user-tab active" onclick="switchTab('login')">Iniciar sesión</button>
+            <button class="user-tab" onclick="switchTab('registro')">Registrarse</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="user-form active" id="form-login">
+            <div class="input-group">
+                <span class="icon">✉️</span>
+                <input type="email" id="u-login-email" placeholder="Email" autocomplete="email">
+            </div>
+            <span class="field-error" id="u-err-login-email">Email requerido</span>
+            <div class="input-group">
+                <span class="icon">🔑</span>
+                <input type="password" id="u-login-pass" placeholder="Contraseña" autocomplete="current-password">
+            </div>
+            <span class="field-error" id="u-err-login-pass">Contraseña requerida</span>
+            <button class="btn-user-action" id="btn-login-cliente" onclick="loginCliente()">Ingresar</button>
+        </div>
+
+        <!-- REGISTRO -->
+        <div class="user-form" id="form-registro">
+            <div class="input-group">
+                <span class="icon">👤</span>
+                <input type="text" id="u-reg-nombre" placeholder="Tu nombre" autocomplete="given-name">
+            </div>
+            <span class="field-error" id="u-err-reg-nombre">Nombre requerido</span>
+            <div class="input-group">
+                <span class="icon">✉️</span>
+                <input type="email" id="u-reg-email" placeholder="Email" autocomplete="email">
+            </div>
+            <span class="field-error" id="u-err-reg-email">Email requerido</span>
+            <div class="input-group">
+                <span class="icon">🔑</span>
+                <input type="password" id="u-reg-pass" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password">
+            </div>
+            <span class="field-error" id="u-err-reg-pass">Mínimo 6 caracteres</span>
+            <button class="btn-user-action" id="btn-registro-cliente" onclick="registroCliente()">Crear cuenta</button>
+        </div>
+    </div>
+</div>
+
+<!-- BOTÓN FLOTANTE DE USUARIO -->
+<div class="floating-user" id="floating-user" onclick="abrirUserModal()">
+    <div class="user-avatar" id="user-avatar">👤</div>
+    <span class="user-name" id="user-name-label">Ingresar</span>
+</div>
+
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -1056,9 +1162,19 @@
     async function init() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            sesionActiva = session.user;
-            document.getElementById('admin-email-label').textContent = '👤 ' + sesionActiva.email;
+            // Sesión de admin
+            if (session.user.app_metadata?.role === 'admin' ||
+                document.getElementById('admin-email-label')) {
+                sesionActiva = session.user;
+                const adminLabel = document.getElementById('admin-email-label');
+                if (adminLabel) adminLabel.textContent = '👤 ' + sesionActiva.email;
+            }
+            // Sesión de cliente (siempre)
+            usuarioActual = session.user;
+            carrito = cargarCarritoLocal(usuarioActual.id);
+            actualizarUIUsuario(usuarioActual);
         }
+        actualizarBadge();
         await cargarCarrusel();
         await cargarProductos();
     }
@@ -1185,16 +1301,176 @@
         `).join('');
     }
 
-    // ─── CARRITO ──────────────────────────────────────────────
-    const WHATSAPP_NUM = '543751246552'; // ← Reemplazá con tu número
-    let carrito = [];
+    // ─── USUARIO CLIENTE ──────────────────────────────────────
+    let usuarioActual = null;
 
-    // Cargar desde localStorage de forma segura
-    try { carrito = JSON.parse(localStorage.getItem('carrito_mm') || '[]'); } catch(e) { carrito = []; }
+    // UI helpers
+    window.abrirUserModal = () => {
+        if (usuarioActual) { mostrarMenuUsuario(); return; }
+        document.getElementById('user-modal').classList.add('active');
+        setTimeout(() => document.getElementById('u-login-email').focus(), 100);
+    };
+    window.cerrarUserModal = () => document.getElementById('user-modal').classList.remove('active');
+
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.user-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'login')));
+        document.getElementById('form-login').classList.toggle('active', tab === 'login');
+        document.getElementById('form-registro').classList.toggle('active', tab === 'registro');
+    };
+
+    function mostrarMenuUsuario() {
+        const nombre = usuarioActual.user_metadata?.nombre || usuarioActual.email.split('@')[0];
+        if (confirm(`Hola ${nombre} 👋\n¿Querés cerrar sesión?`)) cerrarSesionCliente();
+    }
+
+    function actualizarUIUsuario(user) {
+        const btn = document.getElementById('floating-user');
+        const avatar = document.getElementById('user-avatar');
+        const label = document.getElementById('user-name-label');
+        if (user) {
+            const nombre = user.user_metadata?.nombre || user.email.split('@')[0];
+            const inicial = nombre.charAt(0).toUpperCase();
+            avatar.textContent = inicial;
+            avatar.style.background = 'var(--secondary-pink)';
+            label.textContent = nombre;
+            btn.title = 'Tu cuenta';
+        } else {
+            avatar.textContent = '👤';
+            avatar.style.background = 'var(--primary-pink)';
+            label.textContent = 'Ingresar';
+            btn.title = 'Iniciar sesión';
+        }
+    }
+
+    // ── Carrito sincronizado con usuario ─────────────────────
+    function claveCarritoLocal(userId) {
+        return userId ? `carrito_mm_${userId}` : 'carrito_mm_guest';
+    }
+
+    function cargarCarritoLocal(userId) {
+        try {
+            const key = claveCarritoLocal(userId);
+            return JSON.parse(localStorage.getItem(key) || '[]');
+        } catch { return []; }
+    }
 
     function guardarCarrito() {
-        try { localStorage.setItem('carrito_mm', JSON.stringify(carrito)); } catch(e) {}
+        try {
+            const key = claveCarritoLocal(usuarioActual?.id);
+            localStorage.setItem(key, JSON.stringify(carrito));
+        } catch(e) {}
     }
+
+    // Al iniciar sesión: fusionar carrito anónimo con el del usuario
+    function fusionarCarritos(carritoAnon, carritoUsuario) {
+        const fusionado = [...carritoUsuario];
+        carritoAnon.forEach(itemAnon => {
+            const existe = fusionado.find(i => i.clave === itemAnon.clave);
+            if (existe) {
+                existe.cantidad += itemAnon.cantidad;
+            } else {
+                fusionado.push(itemAnon);
+            }
+        });
+        return fusionado;
+    }
+
+    // ── Login cliente ────────────────────────────────────────
+    window.loginCliente = async () => {
+        const email = document.getElementById('u-login-email').value.trim();
+        const pass = document.getElementById('u-login-pass').value;
+        limpiarErrores('u-err-login-email', 'u-err-login-pass');
+
+        let ok = true;
+        if (!email) ok = !mostrarError('u-err-login-email', true);
+        if (!pass) ok = !mostrarError('u-err-login-pass', true);
+        if (!ok) return;
+
+        const btn = document.getElementById('btn-login-cliente');
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Ingresando...';
+
+        try {
+            const carritoAnon = [...carrito]; // guardar carrito anónimo
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            if (error) throw error;
+
+            usuarioActual = data.user;
+            const carritoUsuario = cargarCarritoLocal(usuarioActual.id);
+            carrito = fusionarCarritos(carritoAnon, carritoUsuario);
+            guardarCarrito();
+            actualizarBadge();
+            actualizarUIUsuario(usuarioActual);
+            cerrarUserModal();
+
+            const nombre = usuarioActual.user_metadata?.nombre || email.split('@')[0];
+            mostrarToast(`👋 ¡Bienvenido, ${nombre}!`, 'success', 3000);
+        } catch(e) {
+            const msg = e.message?.includes('Invalid login') ? 'Email o contraseña incorrectos' : e.message;
+            mostrarToast('❌ ' + msg, 'error', 4000);
+        } finally {
+            btn.disabled = false; btn.innerHTML = 'Ingresar';
+        }
+    };
+
+    // ── Registro cliente ─────────────────────────────────────
+    window.registroCliente = async () => {
+        const nombre = document.getElementById('u-reg-nombre').value.trim();
+        const email = document.getElementById('u-reg-email').value.trim();
+        const pass = document.getElementById('u-reg-pass').value;
+        limpiarErrores('u-err-reg-nombre', 'u-err-reg-email', 'u-err-reg-pass');
+
+        let ok = true;
+        if (!nombre) ok = !mostrarError('u-err-reg-nombre', true);
+        if (!email) ok = !mostrarError('u-err-reg-email', true);
+        if (!pass || pass.length < 6) ok = !mostrarError('u-err-reg-pass', true);
+        if (!ok) return;
+
+        const btn = document.getElementById('btn-registro-cliente');
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Creando cuenta...';
+
+        try {
+            const carritoAnon = [...carrito];
+
+            const { data, error } = await supabase.auth.signUp({
+                email, password: pass,
+                options: { data: { nombre } }
+            });
+            if (error) throw error;
+
+            usuarioActual = data.user;
+            carrito = carritoAnon; // llevar el carrito anónimo a la nueva cuenta
+            guardarCarrito();
+            actualizarBadge();
+            actualizarUIUsuario(usuarioActual);
+            cerrarUserModal();
+            mostrarToast(`🎉 ¡Cuenta creada! Bienvenida, ${nombre}!`, 'success', 4000);
+        } catch(e) {
+            const msg = e.message?.includes('already registered') ? 'Ese email ya tiene una cuenta. ¡Iniciá sesión!' : e.message;
+            mostrarToast('❌ ' + msg, 'error', 4000);
+        } finally {
+            btn.disabled = false; btn.innerHTML = 'Crear cuenta';
+        }
+    };
+
+    // ── Cerrar sesión cliente ────────────────────────────────
+    async function cerrarSesionCliente() {
+        await supabase.auth.signOut();
+        usuarioActual = null;
+        carrito = cargarCarritoLocal(null); // volver al carrito anónimo
+        actualizarBadge();
+        actualizarUIUsuario(null);
+        mostrarToast('👋 Sesión cerrada', '', 2000);
+    }
+
+    // ── Enter en inputs del modal ────────────────────────────
+    document.getElementById('u-login-pass')?.addEventListener('keydown', e => { if(e.key === 'Enter') loginCliente(); });
+    document.getElementById('u-reg-pass')?.addEventListener('keydown', e => { if(e.key === 'Enter') registroCliente(); });
+    document.getElementById('user-modal')?.addEventListener('click', e => { if(e.target.id === 'user-modal') cerrarUserModal(); });
+
+    // ─── CARRITO ──────────────────────────────────────────────
+    const WHATSAPP_NUM = '5493XXXXXXXXX'; // ← Reemplazá con tu número
+    let carrito = cargarCarritoLocal(null);
 
     function actualizarBadge() {
         const total = carrito.reduce((acc, i) => acc + i.cantidad, 0);
