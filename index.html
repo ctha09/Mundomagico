@@ -432,6 +432,104 @@
             #productos-inicio { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
 
+        /* ── CHECKOUT MODAL ── */
+        #checkout-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 4100; display: none; align-items: flex-end; justify-content: center;
+        }
+        #checkout-modal.active { display: flex; }
+        .checkout-box {
+            background: white; border-radius: 30px 30px 0 0; width: 100%; max-width: 560px;
+            max-height: 92vh; display: flex; flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15); animation: slideUp 0.3s ease;
+        }
+        .checkout-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 20px 12px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+        }
+        .checkout-back, .checkout-close {
+            background: #f5f5f5; border: none; border-radius: 10px; padding: 6px 12px;
+            cursor: pointer; font-size: 0.9rem; color: #888; font-family: 'Fredoka'; margin: 0; width: auto;
+        }
+        .checkout-back:hover, .checkout-close:hover { background: #ffe0ee; color: var(--secondary-pink); }
+        .checkout-steps { display: flex; gap: 6px; }
+        .cstep {
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+            background: #f5f5f5; color: #bbb; transition: all 0.3s;
+        }
+        .cstep.active { background: var(--primary-pink); color: white; }
+        .cstep.done { background: #e8f5e9; color: #4caf50; }
+
+        .checkout-step { display: none; padding: 20px; overflow-y: auto; flex: 1; }
+        .checkout-step.active { display: block; }
+        .step-titulo { margin: 0 0 18px; font-size: 1.2rem; color: #444; text-align: center; }
+
+        /* KPIs */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .kpi-card {
+            background: #fafafa; border: 2px solid #f0f0f0; border-radius: 18px;
+            padding: 18px 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+        .kpi-card:hover { border-color: var(--primary-pink); background: #fff0f6; }
+        .kpi-card.seleccionado { border-color: var(--secondary-pink); background: #fff0f6; box-shadow: 0 4px 14px rgba(255,64,129,0.2); }
+        .kpi-icon { font-size: 2rem; }
+        .kpi-label { font-size: 0.9rem; font-weight: 700; color: #555; }
+        .kpi-sub { font-size: 0.75rem; color: #aaa; }
+
+        .entrega-detalle, .pago-detalle { margin-top: 4px; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .detalle-info { background: #fff0f6; border-radius: 12px; padding: 10px 14px; font-size: 0.9rem; color: #993556; margin: 0 0 10px; }
+
+        .btn-siguiente {
+            width: 100%; padding: 14px; background: var(--primary-pink); color: white;
+            border: none; border-radius: 16px; font-family: 'Fredoka'; font-size: 1.05rem;
+            font-weight: 700; cursor: pointer; margin-top: 16px; transition: all 0.2s;
+        }
+        .btn-siguiente:hover { background: var(--secondary-pink); transform: translateY(-1px); }
+
+        /* Tarjeta visual */
+        .tarjeta-visual {
+            background: linear-gradient(135deg, #ff80ab, #ff4081);
+            border-radius: 16px; padding: 20px; color: white; margin: 10px 0;
+            box-shadow: 0 8px 20px rgba(255,64,129,0.3);
+        }
+        .tarjeta-chip { font-size: 1.4rem; margin-bottom: 14px; opacity: 0.8; }
+        .tarjeta-numero { font-size: 1.15rem; letter-spacing: 3px; margin-bottom: 16px; font-family: monospace; }
+        .tarjeta-footer { display: flex; justify-content: space-between; }
+        .tarjeta-label { font-size: 0.65rem; opacity: 0.7; text-transform: uppercase; }
+        .tarjeta-valor { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; }
+
+        /* CBU */
+        .cbu-box {
+            background: #f0f7ff; border: 2px solid #b3d4f5; border-radius: 16px;
+            padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 10px 0;
+        }
+        .cbu-label { font-size: 0.75rem; color: #5588aa; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .cbu-numero { font-size: 1.05rem; font-family: monospace; color: #1a4a7a; font-weight: 700; letter-spacing: 1px; text-align: center; }
+        .btn-copiar-cbu {
+            background: #1a4a7a; color: white; border: none; border-radius: 10px;
+            padding: 8px 20px; cursor: pointer; font-family: 'Fredoka'; font-size: 0.9rem; margin: 0; width: auto;
+        }
+        .btn-copiar-cbu:hover { background: #0d2d4f; }
+
+        /* Comprobante */
+        .comprobante-area {
+            border: 2px dashed var(--primary-pink); border-radius: 14px; padding: 18px;
+            text-align: center; cursor: pointer; color: #993556; font-size: 0.9rem;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            transition: background 0.2s;
+        }
+        .comprobante-area:hover { background: #fff0f6; }
+        .comprobante-area #comp-icon { font-size: 2rem; }
+
+        /* Resumen */
+        .resumen-box { background: #fafafa; border-radius: 16px; padding: 16px; }
+        .resumen-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; color: #555; }
+        .resumen-item:last-child { border-bottom: none; }
+        .resumen-item strong { color: var(--secondary-pink); }
+        .resumen-seccion { font-size: 0.75rem; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; }
+
         /* ── LOGIN / REGISTRO DE CLIENTES ── */
         #user-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -839,11 +937,168 @@
                 <span>Total estimado</span>
                 <strong id="carrito-total-monto">$0</strong>
             </div>
-            <button class="btn-whatsapp" data-action="whatsapp">
-                <span style="font-size:1.4rem">📱</span> Finalizar pedido por WhatsApp
+            <button class="btn-whatsapp" onclick="abrirCheckout()">
+                <span style="font-size:1.4rem">✅</span> Finalizar pedido
             </button>
             <button class="btn-vaciar" data-action="vaciar">Vaciar carrito</button>
         </div>
+    </div>
+</div>
+
+<!-- MODAL CHECKOUT -->
+<div id="checkout-modal">
+    <div class="checkout-box">
+
+        <!-- HEADER -->
+        <div class="checkout-header">
+            <button class="checkout-back" id="checkout-back-btn" onclick="checkoutAtras()">← Atrás</button>
+            <div class="checkout-steps" id="checkout-steps">
+                <div class="cstep active" data-step="1">Entrega</div>
+                <div class="cstep" data-step="2">Pago</div>
+                <div class="cstep" data-step="3">Confirmar</div>
+            </div>
+            <button class="checkout-close" onclick="cerrarCheckout()">✕</button>
+        </div>
+
+        <!-- PASO 1: ENTREGA -->
+        <div class="checkout-step active" id="step-entrega">
+            <h3 class="step-titulo">¿Cómo recibís tu pedido?</h3>
+            <div class="kpi-grid">
+                <div class="kpi-card" id="kpi-retiro" onclick="elegirEntrega('retiro')">
+                    <span class="kpi-icon">🏪</span>
+                    <span class="kpi-label">Retirar pedido</span>
+                    <span class="kpi-sub">En el local</span>
+                </div>
+                <div class="kpi-card" id="kpi-envio" onclick="elegirEntrega('envio')">
+                    <span class="kpi-icon">🚚</span>
+                    <span class="kpi-label">Envío</span>
+                    <span class="kpi-sub">A domicilio</span>
+                </div>
+            </div>
+
+            <!-- Detalle retiro -->
+            <div class="entrega-detalle" id="detalle-retiro" style="display:none">
+                <p class="detalle-info">📍 Retirás en nuestro local. Te avisamos cuando está listo.</p>
+                <div id="mapa-retiro" style="width:100%;height:200px;border-radius:16px;overflow:hidden;margin-top:10px">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d-55.9!3d-27.4!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDI0JzAwLjAiUyA1NcKwNTQnMDAuMCJX!5e0!3m2!1ses!2sar!4v1620000000000!5m2!1ses!2sar"
+                        width="100%" height="200" style="border:0" allowfullscreen="" loading="lazy" id="iframe-mapa">
+                    </iframe>
+                </div>
+                <p style="font-size:0.82rem;color:#aaa;margin:6px 0 0;text-align:center">Actualizá la URL del mapa con tu dirección real</p>
+            </div>
+
+            <!-- Detalle envío -->
+            <div class="entrega-detalle" id="detalle-envio" style="display:none">
+                <p class="detalle-info">📦 Ingresá tu dirección de entrega</p>
+                <div class="input-group" style="margin-top:10px">
+                    <span class="icon">📍</span>
+                    <input type="text" id="envio-calle" placeholder="Calle y número">
+                </div>
+                <div class="input-group">
+                    <span class="icon">🏘️</span>
+                    <input type="text" id="envio-barrio" placeholder="Barrio / Localidad">
+                </div>
+                <div class="input-group">
+                    <span class="icon">📝</span>
+                    <input type="text" id="envio-referencia" placeholder="Referencia (opcional)">
+                </div>
+                <span class="field-error" id="err-envio-dir">Ingresá tu dirección</span>
+            </div>
+
+            <button class="btn-siguiente" id="btn-sig-entrega" style="display:none" onclick="siguienteCheckout(2)">
+                Siguiente → Forma de pago
+            </button>
+        </div>
+
+        <!-- PASO 2: PAGO -->
+        <div class="checkout-step" id="step-pago">
+            <h3 class="step-titulo">¿Cómo querés pagar?</h3>
+            <div class="kpi-grid">
+                <div class="kpi-card" id="kpi-credito" onclick="elegirPago('credito')">
+                    <span class="kpi-icon">💳</span>
+                    <span class="kpi-label">Tarjeta de crédito</span>
+                </div>
+                <div class="kpi-card" id="kpi-debito" onclick="elegirPago('debito')">
+                    <span class="kpi-icon">🏦</span>
+                    <span class="kpi-label">Tarjeta de débito</span>
+                </div>
+                <div class="kpi-card" id="kpi-transferencia" onclick="elegirPago('transferencia')">
+                    <span class="kpi-icon">📲</span>
+                    <span class="kpi-label">Transferencia</span>
+                </div>
+            </div>
+
+            <!-- Panel tarjeta -->
+            <div class="pago-detalle" id="detalle-tarjeta" style="display:none">
+                <p class="detalle-info" id="tarjeta-tipo-label">💳 Datos de tu tarjeta</p>
+                <div class="tarjeta-visual" id="tarjeta-visual">
+                    <div class="tarjeta-chip">▬▬</div>
+                    <div class="tarjeta-numero" id="tv-numero">•••• •••• •••• ••••</div>
+                    <div class="tarjeta-footer">
+                        <div>
+                            <div class="tarjeta-label">Titular</div>
+                            <div class="tarjeta-valor" id="tv-nombre">NOMBRE APELLIDO</div>
+                        </div>
+                        <div>
+                            <div class="tarjeta-label">Vence</div>
+                            <div class="tarjeta-valor" id="tv-vence">MM/AA</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-top:12px">
+                    <span class="icon">💳</span>
+                    <input type="text" id="card-numero" placeholder="Número de tarjeta" maxlength="19" inputmode="numeric">
+                </div>
+                <div class="input-group">
+                    <span class="icon">👤</span>
+                    <input type="text" id="card-nombre" placeholder="Nombre del titular" style="text-transform:uppercase">
+                </div>
+                <div style="display:flex;gap:10px">
+                    <div class="input-group" style="flex:1;margin:0">
+                        <span class="icon">📅</span>
+                        <input type="text" id="card-vence" placeholder="MM/AA" maxlength="5" inputmode="numeric" style="padding-left:38px">
+                    </div>
+                    <div class="input-group" style="flex:1;margin:0">
+                        <span class="icon">🔒</span>
+                        <input type="text" id="card-cvv" placeholder="CVV" maxlength="4" inputmode="numeric" style="padding-left:38px">
+                    </div>
+                </div>
+                <span class="field-error" id="err-tarjeta">Completá todos los datos de la tarjeta</span>
+                <p style="font-size:0.75rem;color:#bbb;margin:8px 0 0;text-align:center">🔒 Los datos se envían de forma segura por WhatsApp para coordinar el pago</p>
+            </div>
+
+            <!-- Panel transferencia -->
+            <div class="pago-detalle" id="detalle-transferencia" style="display:none">
+                <p class="detalle-info">📲 Realizá la transferencia al siguiente CBU</p>
+                <div class="cbu-box">
+                    <span class="cbu-label">CBU</span>
+                    <span class="cbu-numero" id="cbu-texto">0110369230036912766065</span>
+                    <button class="btn-copiar-cbu" onclick="copiarCBU()">📋 Copiar</button>
+                </div>
+                <p style="font-size:0.85rem;color:#888;margin:12px 0 8px;text-align:center">Una vez realizada la transferencia, adjuntá el comprobante:</p>
+                <div class="comprobante-area" onclick="document.getElementById('comp-file').click()">
+                    <span id="comp-icon">🧾</span>
+                    <span id="comp-label">Tocar para adjuntar comprobante</span>
+                    <input type="file" id="comp-file" accept="image/*,.pdf" style="display:none" onchange="previewComprobante(this)">
+                </div>
+                <span class="field-error" id="err-comprobante">Adjuntá el comprobante de transferencia</span>
+            </div>
+
+            <button class="btn-siguiente" id="btn-sig-pago" style="display:none" onclick="siguienteCheckout(3)">
+                Siguiente → Confirmar pedido
+            </button>
+        </div>
+
+        <!-- PASO 3: CONFIRMAR -->
+        <div class="checkout-step" id="step-confirmar">
+            <h3 class="step-titulo">Resumen de tu pedido</h3>
+            <div class="resumen-box" id="resumen-box"></div>
+            <button class="btn-whatsapp" style="margin-top:16px" onclick="enviarPorWhatsapp()">
+                <span style="font-size:1.3rem">📱</span> Enviar pedido por WhatsApp
+            </button>
+        </div>
+
     </div>
 </div>
 
@@ -1599,17 +1854,206 @@
         document.getElementById('carrito-modal').classList.remove('active');
     };
 
-    window.finalizarPorWhatsapp = () => {
-        if (carrito.length === 0) return;
-        const total = carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
-        let msg = '¡Hola! Quiero hacer el siguiente pedido en *Mundo Mágico* 🌈\n\n';
-        carrito.forEach(item => {
-            const talleStr = item.talle ? ` — Talle: *${item.talle}*` : '';
-            msg += `▪️ *${item.nombre}*${talleStr} x${item.cantidad} — $${Number(item.precio * item.cantidad).toLocaleString('es-AR')}\n`;
+    // ─── CHECKOUT ─────────────────────────────────────────────
+    let checkout = { entrega: null, direccion: null, pago: null, comprobante: null };
+    let pasoActual = 1;
+
+    window.abrirCheckout = () => {
+        checkout = { entrega: null, direccion: null, pago: null, comprobante: null };
+        irAPaso(1);
+        document.getElementById('checkout-modal').classList.add('active');
+        document.getElementById('carrito-modal').classList.remove('active');
+        // Reset UI
+        ['kpi-retiro','kpi-envio','kpi-credito','kpi-debito','kpi-transferencia'].forEach(id => {
+            document.getElementById(id)?.classList.remove('seleccionado');
         });
-        msg += `\n*Total estimado: $${total.toLocaleString('es-AR')}*\n\n¿Está disponible? 😊`;
+        ['detalle-retiro','detalle-envio','detalle-tarjeta','detalle-transferencia'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.style.display = 'none';
+        });
+        ['btn-sig-entrega','btn-sig-pago'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.style.display = 'none';
+        });
+    };
+
+    window.cerrarCheckout = () => {
+        document.getElementById('checkout-modal').classList.remove('active');
+    };
+
+    function irAPaso(n) {
+        pasoActual = n;
+        ['step-entrega','step-pago','step-confirmar'].forEach((id, i) => {
+            document.getElementById(id)?.classList.toggle('active', i + 1 === n);
+        });
+        document.querySelectorAll('.cstep').forEach((el, i) => {
+            el.classList.toggle('active', i + 1 === n);
+            el.classList.toggle('done', i + 1 < n);
+        });
+        const backBtn = document.getElementById('checkout-back-btn');
+        if (backBtn) backBtn.style.visibility = n > 1 ? 'visible' : 'hidden';
+        if (n === 3) renderResumen();
+    }
+
+    window.checkoutAtras = () => { if (pasoActual > 1) irAPaso(pasoActual - 1); };
+
+    // ── PASO 1: Entrega ───────────────────────────────────────
+    window.elegirEntrega = (tipo) => {
+        checkout.entrega = tipo;
+        document.getElementById('kpi-retiro').classList.toggle('seleccionado', tipo === 'retiro');
+        document.getElementById('kpi-envio').classList.toggle('seleccionado', tipo === 'envio');
+        document.getElementById('detalle-retiro').style.display = tipo === 'retiro' ? 'block' : 'none';
+        document.getElementById('detalle-envio').style.display = tipo === 'envio' ? 'block' : 'none';
+        document.getElementById('btn-sig-entrega').style.display = 'block';
+    };
+
+    window.siguienteCheckout = (paso) => {
+        if (paso === 2) {
+            if (checkout.entrega === 'envio') {
+                const calle = document.getElementById('envio-calle').value.trim();
+                const barrio = document.getElementById('envio-barrio').value.trim();
+                if (!calle || !barrio) {
+                    mostrarError('err-envio-dir', true);
+                    setTimeout(() => mostrarError('err-envio-dir', false), 2500);
+                    return;
+                }
+                checkout.direccion = `${calle}, ${barrio}`;
+                const ref = document.getElementById('envio-referencia').value.trim();
+                if (ref) checkout.direccion += ` (${ref})`;
+            } else {
+                checkout.direccion = 'Retiro en local';
+            }
+        }
+        if (paso === 3) {
+            if (!checkout.pago) { mostrarToast('⚠️ Elegí una forma de pago', 'warning'); return; }
+            if ((checkout.pago === 'credito' || checkout.pago === 'debito') && !validarTarjeta()) return;
+            if (checkout.pago === 'transferencia' && !checkout.comprobante) {
+                mostrarError('err-comprobante', true);
+                setTimeout(() => mostrarError('err-comprobante', false), 2500);
+                mostrarToast('⚠️ Adjuntá el comprobante de transferencia', 'warning');
+                return;
+            }
+        }
+        irAPaso(paso);
+    };
+
+    // ── PASO 2: Pago ──────────────────────────────────────────
+    window.elegirPago = (tipo) => {
+        checkout.pago = tipo;
+        ['credito','debito','transferencia'].forEach(t => {
+            document.getElementById(`kpi-${t}`)?.classList.toggle('seleccionado', t === tipo);
+        });
+        document.getElementById('detalle-tarjeta').style.display = (tipo === 'credito' || tipo === 'debito') ? 'block' : 'none';
+        document.getElementById('detalle-transferencia').style.display = tipo === 'transferencia' ? 'block' : 'none';
+        document.getElementById('tarjeta-tipo-label').textContent = tipo === 'credito' ? '💳 Tarjeta de crédito' : '🏦 Tarjeta de débito';
+        document.getElementById('btn-sig-pago').style.display = 'block';
+        limpiarErrores('err-tarjeta','err-comprobante');
+    };
+
+    // Formateo en tiempo real de la tarjeta
+    document.getElementById('card-numero')?.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g,'').substring(0,16);
+        e.target.value = v.replace(/(.{4})/g,'$1 ').trim();
+        document.getElementById('tv-numero').textContent = (v + '................').substring(0,16).replace(/(.{4})/g,'$1 ').trim() || '•••• •••• •••• ••••';
+    });
+    document.getElementById('card-nombre')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+        document.getElementById('tv-nombre').textContent = e.target.value || 'NOMBRE APELLIDO';
+    });
+    document.getElementById('card-vence')?.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g,'');
+        if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+        e.target.value = v;
+        document.getElementById('tv-vence').textContent = v || 'MM/AA';
+    });
+
+    function validarTarjeta() {
+        const n = document.getElementById('card-numero').value.replace(/\s/g,'');
+        const nombre = document.getElementById('card-nombre').value.trim();
+        const vence = document.getElementById('card-vence').value;
+        const cvv = document.getElementById('card-cvv').value;
+        if (n.length < 15 || !nombre || vence.length < 5 || cvv.length < 3) {
+            mostrarError('err-tarjeta', true);
+            setTimeout(() => mostrarError('err-tarjeta', false), 3000);
+            return false;
+        }
+        return true;
+    }
+
+    window.copiarCBU = () => {
+        navigator.clipboard.writeText('0110369230036912766065').then(() => {
+            mostrarToast('✅ CBU copiado', 'success', 2000);
+        });
+    };
+
+    window.previewComprobante = (input) => {
+        const file = input.files[0];
+        if (!file) return;
+        checkout.comprobante = file;
+        document.getElementById('comp-icon').textContent = '✅';
+        document.getElementById('comp-label').textContent = file.name;
+        limpiarErrores('err-comprobante');
+        mostrarToast('✅ Comprobante adjuntado', 'success', 2000);
+    };
+
+    // ── PASO 3: Resumen y WhatsApp ────────────────────────────
+    function renderResumen() {
+        const total = carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
+        const pagoLabel = { credito: 'Tarjeta de crédito', debito: 'Tarjeta de débito', transferencia: 'Transferencia' };
+        const entregaLabel = checkout.entrega === 'retiro' ? '🏪 Retiro en local' : `🚚 Envío a: ${checkout.direccion}`;
+
+        let html = `
+            <div class="resumen-seccion">Productos</div>
+            ${carrito.map(i => `
+                <div class="resumen-item">
+                    <span>${i.nombre}${i.talle ? ` (T: ${i.talle})` : ''} x${i.cantidad}</span>
+                    <strong>$${Number(i.precio * i.cantidad).toLocaleString('es-AR')}</strong>
+                </div>
+            `).join('')}
+            <div class="resumen-item" style="margin-top:8px;font-weight:700;font-size:1rem">
+                <span>Total</span>
+                <strong>$${total.toLocaleString('es-AR')}</strong>
+            </div>
+            <div class="resumen-seccion">Entrega</div>
+            <div class="resumen-item"><span>${entregaLabel}</span></div>
+            <div class="resumen-seccion">Pago</div>
+            <div class="resumen-item"><span>💳 ${pagoLabel[checkout.pago]}</span></div>
+        `;
+        document.getElementById('resumen-box').innerHTML = html;
+    }
+
+    window.enviarPorWhatsapp = () => {
+        const total = carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
+        const pagoLabel = { credito: 'Tarjeta de crédito', debito: 'Tarjeta de débito', transferencia: 'Transferencia bancaria' };
+        const entregaLabel = checkout.entrega === 'retiro' ? 'Retiro en local' : `Envío a: ${checkout.direccion}`;
+
+        let msg = `🛍️ *Nuevo pedido - Mundo Mágico* 🌈\n\n`;
+        msg += `*📦 Productos:*\n`;
+        carrito.forEach(i => {
+            msg += `▪️ ${i.nombre}${i.talle ? ` (Talle: ${i.talle})` : ''} x${i.cantidad} — $${Number(i.precio * i.cantidad).toLocaleString('es-AR')}\n`;
+        });
+        msg += `\n*💰 Total: $${total.toLocaleString('es-AR')}*\n`;
+        msg += `\n*🚚 Entrega:* ${entregaLabel}`;
+        msg += `\n*💳 Pago:* ${pagoLabel[checkout.pago]}`;
+
+        if (checkout.pago === 'credito' || checkout.pago === 'debito') {
+            const num = document.getElementById('card-numero').value;
+            const titular = document.getElementById('card-nombre').value;
+            msg += `\n  • Tarjeta terminada en: ${num.slice(-4)}`;
+            msg += `\n  • Titular: ${titular}`;
+        }
+        if (checkout.pago === 'transferencia' && checkout.comprobante) {
+            msg += `\n  • Comprobante adjunto: ${checkout.comprobante.name}`;
+        }
+        msg += `\n\n¡Muchas gracias! 😊`;
+
         window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
     };
+
+    // Cerrar checkout al click en fondo
+    document.getElementById('checkout-modal')?.addEventListener('click', e => {
+        if (e.target.id === 'checkout-modal') cerrarCheckout();
+    });
+
+    // ─── EVENT DELEGATION ─────────────────────────────────────
 
     // ── Mostrar sección gestión al abrir panel ──────────────
     window.renderAdminProductos = () => {
