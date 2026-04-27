@@ -1029,62 +1029,6 @@
                 </div>
             </div>
 
-            <!-- Panel tarjeta -->
-            <div class="pago-detalle" id="detalle-tarjeta" style="display:none">
-                <p class="detalle-info" id="tarjeta-tipo-label">💳 Datos de tu tarjeta</p>
-                <div class="tarjeta-visual" id="tarjeta-visual">
-                    <div class="tarjeta-chip">▬▬</div>
-                    <div class="tarjeta-numero" id="tv-numero">•••• •••• •••• ••••</div>
-                    <div class="tarjeta-footer">
-                        <div>
-                            <div class="tarjeta-label">Titular</div>
-                            <div class="tarjeta-valor" id="tv-nombre">NOMBRE APELLIDO</div>
-                        </div>
-                        <div>
-                            <div class="tarjeta-label">Vence</div>
-                            <div class="tarjeta-valor" id="tv-vence">MM/AA</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group" style="margin-top:12px">
-                    <span class="icon">💳</span>
-                    <input type="text" id="card-numero" placeholder="Número de tarjeta" maxlength="19" inputmode="numeric">
-                </div>
-                <div class="input-group">
-                    <span class="icon">👤</span>
-                    <input type="text" id="card-nombre" placeholder="Nombre del titular" style="text-transform:uppercase">
-                </div>
-                <div style="display:flex;gap:10px">
-                    <div class="input-group" style="flex:1;margin:0">
-                        <span class="icon">📅</span>
-                        <input type="text" id="card-vence" placeholder="MM/AA" maxlength="5" inputmode="numeric" style="padding-left:38px">
-                    </div>
-                    <div class="input-group" style="flex:1;margin:0">
-                        <span class="icon">🔒</span>
-                        <input type="text" id="card-cvv" placeholder="CVV" maxlength="4" inputmode="numeric" style="padding-left:38px">
-                    </div>
-                </div>
-                <span class="field-error" id="err-tarjeta">Completá todos los datos de la tarjeta</span>
-                <p style="font-size:0.75rem;color:#bbb;margin:8px 0 0;text-align:center">🔒 Los datos se envían de forma segura por WhatsApp para coordinar el pago</p>
-            </div>
-
-            <!-- Panel transferencia -->
-            <div class="pago-detalle" id="detalle-transferencia" style="display:none">
-                <p class="detalle-info">📲 Realizá la transferencia al siguiente CBU</p>
-                <div class="cbu-box">
-                    <span class="cbu-label">CBU</span>
-                    <span class="cbu-numero" id="cbu-texto">0110369230036912766065</span>
-                    <button class="btn-copiar-cbu" onclick="copiarCBU()">📋 Copiar</button>
-                </div>
-                <p style="font-size:0.85rem;color:#888;margin:12px 0 8px;text-align:center">Una vez realizada la transferencia, adjuntá el comprobante:</p>
-                <div class="comprobante-area" onclick="document.getElementById('comp-file').click()">
-                    <span id="comp-icon">🧾</span>
-                    <span id="comp-label">Tocar para adjuntar comprobante</span>
-                    <input type="file" id="comp-file" accept="image/*,.pdf" style="display:none" onchange="previewComprobante(this)">
-                </div>
-                <span class="field-error" id="err-comprobante">Adjuntá el comprobante de transferencia</span>
-            </div>
-
             <button class="btn-siguiente" id="btn-sig-pago" style="display:none" onclick="siguienteCheckout(3)">
                 Siguiente → Confirmar pedido
             </button>
@@ -1724,7 +1668,7 @@
     document.getElementById('user-modal')?.addEventListener('click', e => { if(e.target.id === 'user-modal') cerrarUserModal(); });
 
     // ─── CARRITO ──────────────────────────────────────────────
-    const WHATSAPP_NUM = '543751246552'; // ← Reemplazá con tu número
+    const WHATSAPP_NUM = '5493XXXXXXXXX'; // ← Reemplazá con tu número
     let carrito = cargarCarritoLocal(null);
 
     function actualizarBadge() {
@@ -1924,13 +1868,6 @@
         }
         if (paso === 3) {
             if (!checkout.pago) { mostrarToast('⚠️ Elegí una forma de pago', 'warning'); return; }
-            if ((checkout.pago === 'credito' || checkout.pago === 'debito') && !validarTarjeta()) return;
-            if (checkout.pago === 'transferencia' && !checkout.comprobante) {
-                mostrarError('err-comprobante', true);
-                setTimeout(() => mostrarError('err-comprobante', false), 2500);
-                mostrarToast('⚠️ Adjuntá el comprobante de transferencia', 'warning');
-                return;
-            }
         }
         irAPaso(paso);
     };
@@ -1941,57 +1878,7 @@
         ['credito','debito','transferencia'].forEach(t => {
             document.getElementById(`kpi-${t}`)?.classList.toggle('seleccionado', t === tipo);
         });
-        document.getElementById('detalle-tarjeta').style.display = (tipo === 'credito' || tipo === 'debito') ? 'block' : 'none';
-        document.getElementById('detalle-transferencia').style.display = tipo === 'transferencia' ? 'block' : 'none';
-        document.getElementById('tarjeta-tipo-label').textContent = tipo === 'credito' ? '💳 Tarjeta de crédito' : '🏦 Tarjeta de débito';
         document.getElementById('btn-sig-pago').style.display = 'block';
-        limpiarErrores('err-tarjeta','err-comprobante');
-    };
-
-    // Formateo en tiempo real de la tarjeta
-    document.getElementById('card-numero')?.addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g,'').substring(0,16);
-        e.target.value = v.replace(/(.{4})/g,'$1 ').trim();
-        document.getElementById('tv-numero').textContent = (v + '................').substring(0,16).replace(/(.{4})/g,'$1 ').trim() || '•••• •••• •••• ••••';
-    });
-    document.getElementById('card-nombre')?.addEventListener('input', (e) => {
-        e.target.value = e.target.value.toUpperCase();
-        document.getElementById('tv-nombre').textContent = e.target.value || 'NOMBRE APELLIDO';
-    });
-    document.getElementById('card-vence')?.addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g,'');
-        if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
-        e.target.value = v;
-        document.getElementById('tv-vence').textContent = v || 'MM/AA';
-    });
-
-    function validarTarjeta() {
-        const n = document.getElementById('card-numero').value.replace(/\s/g,'');
-        const nombre = document.getElementById('card-nombre').value.trim();
-        const vence = document.getElementById('card-vence').value;
-        const cvv = document.getElementById('card-cvv').value;
-        if (n.length < 15 || !nombre || vence.length < 5 || cvv.length < 3) {
-            mostrarError('err-tarjeta', true);
-            setTimeout(() => mostrarError('err-tarjeta', false), 3000);
-            return false;
-        }
-        return true;
-    }
-
-    window.copiarCBU = () => {
-        navigator.clipboard.writeText('0110369230036912766065').then(() => {
-            mostrarToast('✅ CBU copiado', 'success', 2000);
-        });
-    };
-
-    window.previewComprobante = (input) => {
-        const file = input.files[0];
-        if (!file) return;
-        checkout.comprobante = file;
-        document.getElementById('comp-icon').textContent = '✅';
-        document.getElementById('comp-label').textContent = file.name;
-        limpiarErrores('err-comprobante');
-        mostrarToast('✅ Comprobante adjuntado', 'success', 2000);
     };
 
     // ── PASO 3: Resumen y WhatsApp ────────────────────────────
@@ -2033,16 +1920,6 @@
         msg += `\n*💰 Total: $${total.toLocaleString('es-AR')}*\n`;
         msg += `\n*🚚 Entrega:* ${entregaLabel}`;
         msg += `\n*💳 Pago:* ${pagoLabel[checkout.pago]}`;
-
-        if (checkout.pago === 'credito' || checkout.pago === 'debito') {
-            const num = document.getElementById('card-numero').value;
-            const titular = document.getElementById('card-nombre').value;
-            msg += `\n  • Tarjeta terminada en: ${num.slice(-4)}`;
-            msg += `\n  • Titular: ${titular}`;
-        }
-        if (checkout.pago === 'transferencia' && checkout.comprobante) {
-            msg += `\n  • Comprobante adjunto: ${checkout.comprobante.name}`;
-        }
         msg += `\n\n¡Muchas gracias! 😊`;
 
         window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
