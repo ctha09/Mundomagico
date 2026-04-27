@@ -979,31 +979,73 @@
             <!-- Detalle retiro -->
             <div class="entrega-detalle" id="detalle-retiro" style="display:none">
                 <p class="detalle-info">📍 Retirás en nuestro local. Te avisamos cuando está listo.</p>
-                <div id="mapa-retiro" style="width:100%;height:200px;border-radius:16px;overflow:hidden;margin-top:10px">
+                <div style="width:100%;height:200px;border-radius:16px;overflow:hidden;margin-top:10px">
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d-55.9!3d-27.4!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDI0JzAwLjAiUyA1NcKwNTQnMDAuMCJX!5e0!3m2!1ses!2sar!4v1620000000000!5m2!1ses!2sar"
-                        width="100%" height="200" style="border:0" allowfullscreen="" loading="lazy" id="iframe-mapa">
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d500!2d-54.730333!3d-26.579833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDM0JzQ3LjQiUyA1NMKwNDMnNDkuMiJX!5e0!3m2!1ses!2sar!4v1620000000000!5m2!1ses!2sar"
+                        width="100%" height="200" style="border:0" allowfullscreen="" loading="lazy">
                     </iframe>
                 </div>
-                <p style="font-size:0.82rem;color:#aaa;margin:6px 0 0;text-align:center">Actualizá la URL del mapa con tu dirección real</p>
             </div>
 
             <!-- Detalle envío -->
             <div class="entrega-detalle" id="detalle-envio" style="display:none">
-                <p class="detalle-info">📦 Ingresá tu dirección de entrega</p>
-                <div class="input-group" style="margin-top:10px">
-                    <span class="icon">📍</span>
-                    <input type="text" id="envio-calle" placeholder="Calle y número">
+                <p class="detalle-info">📦 ¿Cómo querés que te lo enviemos?</p>
+
+                <!-- Sub-KPIs tipo envío -->
+                <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
+                    <div class="kpi-card" id="kpi-moto" onclick="elegirTipoEnvio('moto')">
+                        <span class="kpi-icon">🛵</span>
+                        <span class="kpi-label">Moto mandado</span>
+                        <span class="kpi-sub">$2.000</span>
+                    </div>
+                    <div class="kpi-card" id="kpi-viacargo" onclick="elegirTipoEnvio('viacargo')">
+                        <span class="kpi-icon">📦</span>
+                        <span class="kpi-label">Via Cargo</span>
+                        <span class="kpi-sub">Pago en destino</span>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <span class="icon">🏘️</span>
-                    <input type="text" id="envio-barrio" placeholder="Barrio / Localidad">
+
+                <!-- Formulario moto -->
+                <div id="form-moto" style="display:none">
+                    <div class="input-group">
+                        <span class="icon">📍</span>
+                        <input type="text" id="envio-calle" placeholder="Calle y número">
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">🏘️</span>
+                        <input type="text" id="envio-barrio" placeholder="Barrio / Localidad">
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">📝</span>
+                        <input type="text" id="envio-referencia" placeholder="Referencia (opcional)">
+                    </div>
+                    <span class="field-error" id="err-envio-dir">Ingresá tu dirección</span>
                 </div>
-                <div class="input-group">
-                    <span class="icon">📝</span>
-                    <input type="text" id="envio-referencia" placeholder="Referencia (opcional)">
+
+                <!-- Formulario via cargo -->
+                <div id="form-viacargo" style="display:none">
+                    <div class="input-group">
+                        <span class="icon">📍</span>
+                        <input type="text" id="vc-calle" placeholder="Calle y número">
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">🏙️</span>
+                        <input type="text" id="vc-ciudad" placeholder="Ciudad">
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">🗺️</span>
+                        <input type="text" id="vc-provincia" placeholder="Provincia">
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">🔢</span>
+                        <input type="text" id="vc-cp" placeholder="Código postal" inputmode="numeric">
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">📝</span>
+                        <input type="text" id="vc-referencia" placeholder="Referencia (opcional)">
+                    </div>
+                    <span class="field-error" id="err-vc-dir">Completá todos los campos</span>
                 </div>
-                <span class="field-error" id="err-envio-dir">Ingresá tu dirección</span>
             </div>
 
             <button class="btn-siguiente" id="btn-sig-entrega" style="display:none" onclick="siguienteCheckout(2)">
@@ -1668,7 +1710,7 @@
     document.getElementById('user-modal')?.addEventListener('click', e => { if(e.target.id === 'user-modal') cerrarUserModal(); });
 
     // ─── CARRITO ──────────────────────────────────────────────
-    const WHATSAPP_NUM = '5493XXXXXXXXX'; // ← Reemplazá con tu número
+    const WHATSAPP_NUM = '5493751506556';
     let carrito = cargarCarritoLocal(null);
 
     function actualizarBadge() {
@@ -1842,28 +1884,61 @@
     // ── PASO 1: Entrega ───────────────────────────────────────
     window.elegirEntrega = (tipo) => {
         checkout.entrega = tipo;
+        checkout.tipoEnvio = null;
         document.getElementById('kpi-retiro').classList.toggle('seleccionado', tipo === 'retiro');
         document.getElementById('kpi-envio').classList.toggle('seleccionado', tipo === 'envio');
         document.getElementById('detalle-retiro').style.display = tipo === 'retiro' ? 'block' : 'none';
         document.getElementById('detalle-envio').style.display = tipo === 'envio' ? 'block' : 'none';
+        if (tipo === 'envio') {
+            ['form-moto','form-viacargo'].forEach(id => document.getElementById(id).style.display = 'none');
+            ['kpi-moto','kpi-viacargo'].forEach(id => document.getElementById(id).classList.remove('seleccionado'));
+        }
+        document.getElementById('btn-sig-entrega').style.display = tipo === 'retiro' ? 'block' : 'none';
+    };
+
+    window.elegirTipoEnvio = (tipo) => {
+        checkout.tipoEnvio = tipo;
+        document.getElementById('kpi-moto').classList.toggle('seleccionado', tipo === 'moto');
+        document.getElementById('kpi-viacargo').classList.toggle('seleccionado', tipo === 'viacargo');
+        document.getElementById('form-moto').style.display = tipo === 'moto' ? 'block' : 'none';
+        document.getElementById('form-viacargo').style.display = tipo === 'viacargo' ? 'block' : 'none';
         document.getElementById('btn-sig-entrega').style.display = 'block';
     };
 
     window.siguienteCheckout = (paso) => {
         if (paso === 2) {
             if (checkout.entrega === 'envio') {
-                const calle = document.getElementById('envio-calle').value.trim();
-                const barrio = document.getElementById('envio-barrio').value.trim();
-                if (!calle || !barrio) {
-                    mostrarError('err-envio-dir', true);
-                    setTimeout(() => mostrarError('err-envio-dir', false), 2500);
-                    return;
+                if (!checkout.tipoEnvio) {
+                    mostrarToast('⚠️ Elegí el tipo de envío', 'warning'); return;
                 }
-                checkout.direccion = `${calle}, ${barrio}`;
-                const ref = document.getElementById('envio-referencia').value.trim();
-                if (ref) checkout.direccion += ` (${ref})`;
+                if (checkout.tipoEnvio === 'moto') {
+                    const calle = document.getElementById('envio-calle').value.trim();
+                    const barrio = document.getElementById('envio-barrio').value.trim();
+                    if (!calle || !barrio) {
+                        mostrarError('err-envio-dir', true);
+                        setTimeout(() => mostrarError('err-envio-dir', false), 2500);
+                        return;
+                    }
+                    const ref = document.getElementById('envio-referencia').value.trim();
+                    checkout.direccion = `${calle}, ${barrio}${ref ? ` (${ref})` : ''}`;
+                    checkout.costoEnvio = '$2.000 (Moto mandado)';
+                } else {
+                    const calle = document.getElementById('vc-calle').value.trim();
+                    const ciudad = document.getElementById('vc-ciudad').value.trim();
+                    const provincia = document.getElementById('vc-provincia').value.trim();
+                    const cp = document.getElementById('vc-cp').value.trim();
+                    if (!calle || !ciudad || !provincia || !cp) {
+                        mostrarError('err-vc-dir', true);
+                        setTimeout(() => mostrarError('err-vc-dir', false), 2500);
+                        return;
+                    }
+                    const ref = document.getElementById('vc-referencia').value.trim();
+                    checkout.direccion = `${calle}, ${ciudad}, ${provincia} (CP: ${cp})${ref ? ` - ${ref}` : ''}`;
+                    checkout.costoEnvio = 'Via Cargo — Pago en destino';
+                }
             } else {
                 checkout.direccion = 'Retiro en local';
+                checkout.costoEnvio = null;
             }
         }
         if (paso === 3) {
@@ -1885,7 +1960,7 @@
     function renderResumen() {
         const total = carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
         const pagoLabel = { credito: 'Tarjeta de crédito', debito: 'Tarjeta de débito', transferencia: 'Transferencia' };
-        const entregaLabel = checkout.entrega === 'retiro' ? '🏪 Retiro en local' : `🚚 Envío a: ${checkout.direccion}`;
+        const entregaLabel = checkout.entrega === 'retiro' ? '🏪 Retiro en local' : `🚚 ${checkout.direccion}`;
 
         let html = `
             <div class="resumen-seccion">Productos</div>
@@ -1896,11 +1971,12 @@
                 </div>
             `).join('')}
             <div class="resumen-item" style="margin-top:8px;font-weight:700;font-size:1rem">
-                <span>Total</span>
+                <span>Subtotal</span>
                 <strong>$${total.toLocaleString('es-AR')}</strong>
             </div>
             <div class="resumen-seccion">Entrega</div>
             <div class="resumen-item"><span>${entregaLabel}</span></div>
+            ${checkout.costoEnvio ? `<div class="resumen-item"><span>💰 Costo envío</span><strong>${checkout.costoEnvio}</strong></div>` : ''}
             <div class="resumen-seccion">Pago</div>
             <div class="resumen-item"><span>💳 ${pagoLabel[checkout.pago]}</span></div>
         `;
@@ -1917,8 +1993,9 @@
         carrito.forEach(i => {
             msg += `▪️ ${i.nombre}${i.talle ? ` (Talle: ${i.talle})` : ''} x${i.cantidad} — $${Number(i.precio * i.cantidad).toLocaleString('es-AR')}\n`;
         });
-        msg += `\n*💰 Total: $${total.toLocaleString('es-AR')}*\n`;
-        msg += `\n*🚚 Entrega:* ${entregaLabel}`;
+        msg += `\n*💰 Total productos: $${total.toLocaleString('es-AR')}*`;
+        msg += `\n\n*🚚 Entrega:* ${entregaLabel}`;
+        if (checkout.costoEnvio) msg += `\n*📬 Costo envío:* ${checkout.costoEnvio}`;
         msg += `\n*💳 Pago:* ${pagoLabel[checkout.pago]}`;
         msg += `\n\n¡Muchas gracias! 😊`;
 
