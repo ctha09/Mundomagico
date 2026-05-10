@@ -406,7 +406,18 @@
         .btn-add-cart:hover { background: var(--secondary-pink); transform: translateY(-2px); }
         .btn-add-cart.added { background: #4caf50; }
 
-        /* ── MODAL CARRITO ── */
+        /* ── STOCK ── */
+        .stock-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.78rem; font-weight: 700; padding: 3px 9px;
+            border-radius: 20px; margin-top: 4px;
+        }
+        .stock-ok { background: #e8f5e9; color: #2e7d32; }
+        .stock-low { background: #fff3e0; color: #e65100; }
+        .stock-out { background: #fce4ec; color: #c62828; }
+        .prod-stock-wrap { margin: 0 0 16px; }
+        .btn-prod-agregar:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .prod-admin-info .stock-badge { font-size: 0.68rem; padding: 2px 6px; }
         #carrito-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.45);
             z-index: 4000; display: none; align-items: flex-end; justify-content: center;
@@ -816,8 +827,8 @@
             <p class="destacados-titulo">✨ Últimos productos</p>
             <div id="productos-inicio"></div>
             <div style="text-align:center;margin-bottom:10px">
-                <button onclick="navegar('todos')" style="width:auto;padding:12px 30px;background:var(--primary-pink);color:white;border:none;border-radius:20px;font-family:'Fredoka';font-size:1rem;font-weight:700;cursor:pointer">
-                    Ver todo el catálogo →
+                <button id="btn-ver-mas" onclick="navegar('todos')" style="width:auto;padding:12px 30px;background:var(--primary-pink);color:white;border:none;border-radius:20px;font-family:'Fredoka';font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s">
+                    Ver más productos →
                 </button>
             </div>
         </div>
@@ -845,6 +856,8 @@
                 <span class="field-error" id="err-nombre">Campo requerido</span>
                 <input type="number" id="p-precio" placeholder="Precio $" min="0" step="0.01">
                 <span class="field-error" id="err-precio">Ingresá un precio válido</span>
+                <input type="number" id="p-stock" placeholder="Stock disponible" min="0" step="1">
+                <span class="field-error" id="err-stock">Ingresá el stock</span>
                 <select id="p-categoria">
                     <option value="">— Seleccioná una categoría —</option>
                     <option value="bebe">👶 Bebé</option>
@@ -1023,6 +1036,7 @@
         <div class="file-info" id="edit-foto-info"></div>
         <input type="text" id="edit-nombre" placeholder="Nombre del producto">
         <input type="number" id="edit-precio" placeholder="Precio $" min="0" step="0.01">
+        <input type="number" id="edit-stock" placeholder="Stock disponible" min="0" step="1">
         <select id="edit-categoria">
             <option value="bebe">👶 Bebé</option>
             <option value="ninos">🎈 Niños</option>
@@ -1088,6 +1102,7 @@
                 <span class="prod-cat-badge" id="prod-cat-badge"></span>
                 <h2 class="prod-nombre" id="prod-nombre"></h2>
                 <div class="prod-precio" id="prod-precio"></div>
+                <div class="prod-stock-wrap" id="prod-stock-wrap"></div>
 
                 <div id="prod-talles-section" style="display:none">
                     <p class="prod-talles-titulo">Seleccioná tu talle:</p>
@@ -1717,14 +1732,19 @@
     function renderProductosInicio() {
         const wrap = document.getElementById('destacados-wrap');
         const grid = document.getElementById('productos-inicio');
+        const btn = document.getElementById('btn-ver-mas');
         if (!todosLosProductos.length) { wrap.style.display = 'none'; return; }
 
-        // Mostrar los últimos 6 productos
         const destacados = todosLosProductos.slice(0, 6);
         wrap.style.display = 'block';
         grid.innerHTML = destacados.map(p => `
             <div class="card" data-id="${p.id}">${buildCardHTML(p)}</div>
         `).join('');
+
+        // Actualizar texto del botón con total de productos
+        if (btn && todosLosProductos.length > 6) {
+            btn.textContent = `Ver los ${todosLosProductos.length} productos →`;
+        }
     }
 
     // ─── USUARIO CLIENTE ──────────────────────────────────────
@@ -1924,10 +1944,28 @@
         }
         document.getElementById('prod-talle-aviso').classList.remove('visible');
 
-        // Reset botón
+        // Stock
+        const stock = prodActual.stock ?? null;
+        const stockWrap = document.getElementById('prod-stock-wrap');
         const btn = document.getElementById('btn-prod-agregar');
+        if (stock === null) {
+            stockWrap.innerHTML = '';
+            btn.disabled = false;
+            btn.innerHTML = '🛒 Agregar al carrito';
+        } else if (stock <= 0) {
+            stockWrap.innerHTML = `<span class="stock-badge stock-out">❌ Sin stock</span>`;
+            btn.disabled = true;
+            btn.innerHTML = '😔 Sin stock disponible';
+        } else if (stock <= 5) {
+            stockWrap.innerHTML = `<span class="stock-badge stock-low">⚡ Últimas ${stock} unidades</span>`;
+            btn.disabled = false;
+            btn.innerHTML = '🛒 Agregar al carrito';
+        } else {
+            stockWrap.innerHTML = `<span class="stock-badge stock-ok">✅ ${stock} en stock</span>`;
+            btn.disabled = false;
+            btn.innerHTML = '🛒 Agregar al carrito';
+        }
         btn.classList.remove('added');
-        btn.innerHTML = '🛒 Agregar al carrito';
 
         document.getElementById('prod-modal').classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -1952,39 +1990,61 @@
         document.getElementById('prod-talle-aviso').classList.remove('visible');
     });
 
-    // Agregar al carrito desde modal
-    window.agregarDesdeProd = () => {
+    window.agregarDesdeProd = async () => {
         if (!prodActual) return;
         const talles = Array.isArray(prodActual.talles) && prodActual.talles.length > 0 ? prodActual.talles : [];
         let talleSeleccionado = null;
 
         if (talles.length > 0) {
             const chip = document.querySelector('.prod-talle-btn.seleccionado');
-            if (!chip) {
-                document.getElementById('prod-talle-aviso').classList.add('visible');
-                return;
-            }
+            if (!chip) { document.getElementById('prod-talle-aviso').classList.add('visible'); return; }
             talleSeleccionado = chip.dataset.talle;
+        }
+
+        // Verificar stock
+        if (prodActual.stock !== null && prodActual.stock !== undefined && prodActual.stock <= 0) {
+            mostrarToast('❌ Sin stock disponible', 'error'); return;
         }
 
         const clave = talleSeleccionado ? `${prodActual.id}_${talleSeleccionado}` : String(prodActual.id);
         const existe = carrito.find(i => i.clave === clave);
-        if (existe) {
-            existe.cantidad++;
-        } else {
+        if (existe) { existe.cantidad++; } else {
             carrito.push({ clave, id: prodActual.id, nombre: prodActual.nombre, precio: prodActual.precio, imagen_url: prodActual.imagen_url, talle: talleSeleccionado, cantidad: 1 });
         }
         guardarCarrito();
         actualizarBadge();
 
+        // Descontar stock en Supabase si tiene stock definido
+        if (prodActual.stock !== null && prodActual.stock !== undefined) {
+            const nuevoStock = Math.max(0, prodActual.stock - 1);
+            await supabase.from('productos').update({ stock: nuevoStock }).eq('id', prodActual.id);
+            // Actualizar estado local
+            prodActual.stock = nuevoStock;
+            const idx = todosLosProductos.findIndex(p => String(p.id) === String(prodActual.id));
+            if (idx !== -1) todosLosProductos[idx].stock = nuevoStock;
+            // Actualizar badge de stock en el modal
+            const stockWrap = document.getElementById('prod-stock-wrap');
+            if (nuevoStock <= 0) {
+                stockWrap.innerHTML = `<span class="stock-badge stock-out">❌ Sin stock</span>`;
+                const btn = document.getElementById('btn-prod-agregar');
+                btn.disabled = true; btn.innerHTML = '😔 Sin stock disponible';
+            } else if (nuevoStock <= 5) {
+                stockWrap.innerHTML = `<span class="stock-badge stock-low">⚡ Últimas ${nuevoStock} unidades</span>`;
+            } else {
+                stockWrap.innerHTML = `<span class="stock-badge stock-ok">✅ ${nuevoStock} en stock</span>`;
+            }
+        }
+
         const btn = document.getElementById('btn-prod-agregar');
-        btn.classList.add('added');
-        btn.innerHTML = '✓ ¡Agregado!';
-        mostrarToast('🛒 ¡Agregado al carrito!', 'success', 1800);
-        setTimeout(() => {
-            btn.classList.remove('added');
-            btn.innerHTML = '🛒 Agregar al carrito';
-        }, 1800);
+        if (!btn.disabled) {
+            btn.classList.add('added');
+            btn.innerHTML = '✓ ¡Agregado!';
+            mostrarToast('🛒 ¡Agregado al carrito!', 'success', 1800);
+            setTimeout(() => {
+                btn.classList.remove('added');
+                btn.innerHTML = '🛒 Agregar al carrito';
+            }, 1800);
+        }
     };
 
     // ── LUPA / ZOOM ───────────────────────────────────────────
@@ -2334,20 +2394,27 @@
             return;
         }
         const catIcon = { bebe:'👶', ninos:'🎈', colegial:'🎒', complementos:'👜', calzados:'👟', maquillaje:'💄', hogar:'🏠', decoracion:'🎨', iluminacion:'💡', libreria:'📚', cotillon:'🎉', adultos:'👗', perfumes:'🌸', juguetes:'🧸' };
-        grid.innerHTML = lista.map(p => `
+        grid.innerHTML = lista.map(p => {
+            const s = p.stock ?? null;
+            const stockBadge = s === null ? '' :
+                s <= 0 ? `<span class="stock-badge stock-out">Sin stock</span>` :
+                s <= 5 ? `<span class="stock-badge stock-low">⚡ ${s} ud.</span>` :
+                `<span class="stock-badge stock-ok">✅ ${s} ud.</span>`;
+            return `
             <div class="prod-admin-card">
                 <img src="${p.imagen_url}" alt="${p.nombre}">
                 <div class="prod-admin-info">
                     <h4>${p.nombre}</h4>
                     <span>$${Number(p.precio).toLocaleString('es-AR')}</span>
                     <small>${catIcon[p.categoria] || ''} ${p.categoria}${p.talles?.length ? ' · ' + p.talles.join(', ') : ''}</small>
+                    ${stockBadge}
                 </div>
                 <div class="prod-admin-actions">
                     <button class="btn-prod-edit" data-action="editar-prod" data-id="${p.id}">✏️ Editar</button>
                     <button class="btn-prod-del" data-action="eliminar-prod" data-id="${p.id}">🗑️ Borrar</button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     };
 
     // ── Eliminar producto ────────────────────────────────────
@@ -2385,6 +2452,7 @@
         document.getElementById('edit-img-preview').src = prod.imagen_url;
         document.getElementById('edit-nombre').value = prod.nombre;
         document.getElementById('edit-precio').value = prod.precio;
+        document.getElementById('edit-stock').value = prod.stock ?? 0;
         document.getElementById('edit-categoria').value = prod.categoria;
         document.getElementById('edit-nueva-foto-input').value = '';
         document.getElementById('edit-foto-info').textContent = '';
@@ -2419,6 +2487,7 @@
         const id = document.getElementById('edit-id').value;
         const nombre = document.getElementById('edit-nombre').value.trim();
         const precio = document.getElementById('edit-precio').value;
+        const stock = document.getElementById('edit-stock').value;
         const categoria = document.getElementById('edit-categoria').value;
         const nuevaFoto = document.getElementById('edit-nueva-foto-input').files[0];
         const talles = [...document.querySelectorAll('#edit-talles-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
@@ -2444,7 +2513,7 @@
             }
 
             const { data: updated, error } = await supabase.from('productos')
-                .update({ nombre, precio: parseFloat(precio), categoria, imagen_url, talles: talles.length > 0 ? talles : null })
+                .update({ nombre, precio: parseFloat(precio), categoria, imagen_url, talles: talles.length > 0 ? talles : null, stock: parseInt(stock) || 0 })
                 .eq('id', id)
                 .select().single();
             if (error) throw error;
@@ -2531,16 +2600,16 @@
     window.subirProducto = async () => {
         const nombre = document.getElementById('p-nombre').value.trim();
         const precio = document.getElementById('p-precio').value;
+        const stock = document.getElementById('p-stock').value;
         const categoria = document.getElementById('p-categoria').value;
         const fotoFile = document.getElementById('p-foto').files[0];
+        const talles = [...document.querySelectorAll('#talles-admin-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
 
-        // Recolectar talles seleccionados
-        const talles = [...document.querySelectorAll('.talle-chip-admin.activo')].map(c => c.dataset.talle);
-
-        limpiarErrores('err-nombre', 'err-precio', 'err-cat', 'err-foto');
+        limpiarErrores('err-nombre', 'err-precio', 'err-stock', 'err-cat', 'err-foto');
         let valido = true;
         if (!nombre) valido = !mostrarError('err-nombre', true);
         if (!precio || isNaN(precio) || Number(precio) < 0) valido = !mostrarError('err-precio', true);
+        if (stock === '' || isNaN(stock) || Number(stock) < 0) valido = !mostrarError('err-stock', true);
         if (!categoria) valido = !mostrarError('err-cat', true);
         if (!fotoFile) valido = !mostrarError('err-foto', true);
         if (!valido) return;
@@ -2562,7 +2631,8 @@
             let insertData = {
                 nombre, precio: parseFloat(precio), categoria,
                 imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID,
-                talles: talles.length > 0 ? talles : null
+                talles: talles.length > 0 ? talles : null,
+                stock: parseInt(stock) || 0
             };
 
             let { data: inserted, error: insErr } = await supabase.from('productos').insert([insertData]).select().single();
@@ -2587,6 +2657,7 @@
             // Limpiar formulario
             document.getElementById('p-nombre').value = '';
             document.getElementById('p-precio').value = '';
+            document.getElementById('p-stock').value = '';
             document.getElementById('p-categoria').value = '';
             document.getElementById('p-foto').value = '';
             document.getElementById('preview-prod').innerHTML = '<div class="placeholder"><span>📷</span><small>Clic para seleccionar imagen</small></div>';
