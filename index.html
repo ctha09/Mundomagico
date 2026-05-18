@@ -406,7 +406,41 @@
         .btn-add-cart:hover { background: var(--secondary-pink); transform: translateY(-2px); }
         .btn-add-cart.added { background: #4caf50; }
 
-        /* ── STOCK ── */
+        /* ── CARGA MASIVA ── */
+        .carga-masiva-seccion { margin-top: 30px; border-top: 2px dashed #f0e0ea; padding-top: 24px; }
+        .carga-masiva-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .carga-masiva-header h3 { margin: 0; }
+        .drop-zone {
+            border: 3px dashed var(--primary-pink); border-radius: 20px; padding: 32px 20px;
+            text-align: center; cursor: pointer; transition: all 0.2s; background: #fff8fc;
+        }
+        .drop-zone:hover, .drop-zone.dragover { background: #fff0f6; border-color: var(--secondary-pink); }
+        .drop-zone .dz-icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+        .drop-zone .dz-title { font-size: 1.1rem; font-weight: 700; color: #555; margin-bottom: 4px; }
+        .drop-zone .dz-sub { font-size: 0.85rem; color: #aaa; }
+        .btn-plantilla { display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; border-radius: 12px; padding: 8px 16px; font-family: 'Fredoka'; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin: 0; width: auto; text-decoration: none; transition: all 0.2s; }
+        .btn-plantilla:hover { background: #c8e6c9; }
+        .preview-tabla { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 14px; }
+        .preview-tabla th { background: var(--primary-pink); color: white; padding: 8px 10px; text-align: left; font-weight: 700; }
+        .preview-tabla td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .preview-tabla tr:nth-child(even) td { background: #fff8fc; }
+        .preview-tabla .badge-ok { background: #e8f5e9; color: #2e7d32; border-radius: 6px; padding: 2px 7px; font-size: 0.75rem; font-weight: 700; }
+        .preview-tabla .badge-err { background: #fce4ec; color: #c62828; border-radius: 6px; padding: 2px 7px; font-size: 0.75rem; font-weight: 700; }
+        .carga-progress { margin-top: 12px; }
+        .carga-progress-bar { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+        .carga-progress-fill { height: 100%; background: var(--primary-pink); border-radius: 4px; width: 0%; transition: width 0.3s; }
+        .carga-log { background: #1e1e2e; color: #cdd6f4; border-radius: 12px; padding: 12px; font-family: monospace; font-size: 0.78rem; max-height: 160px; overflow-y: auto; margin-top: 8px; display: none; }
+        .carga-log.visible { display: block; }
+        .log-ok { color: #a6e3a1; }
+        .log-err { color: #f38ba8; }
+        .log-info { color: #89b4fa; }
+        .stock-talle-grid { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 12px; }
+        .stock-talle-row { display: flex; align-items: center; gap: 8px; background: #fafafa; border-radius: 10px; padding: 6px 10px; }
+        .stock-talle-row .talle-lbl { font-weight: 700; font-size: 0.9rem; color: #555; min-width: 44px; }
+        .stock-talle-row input[type=number] { width: 80px; padding: 5px 8px; margin: 0; font-size: 0.9rem; border-radius: 8px; border: 1.5px solid #ddd; text-align: center; }
+        .stock-talle-row input[type=number]:focus { outline: none; border-color: var(--primary-pink); }
+        .stock-sin-talles { display: flex; align-items: center; gap: 8px; }
+        .stock-sin-talles input[type=number] { width: 100px; padding: 8px 10px; margin: 0; }
         .stock-badge {
             display: inline-flex; align-items: center; gap: 5px;
             font-size: 0.78rem; font-weight: 700; padding: 3px 9px;
@@ -905,6 +939,15 @@
                     <button type="button" onclick="agregarTalleCustom()">+ Agregar</button>
                 </div>
 
+                <span class="talles-label">📦 Stock por talle</span>
+                <div id="stock-por-talle-wrap">
+                    <div class="stock-sin-talles">
+                        <input type="number" id="p-stock-general" placeholder="Stock total" min="0" step="1">
+                        <span style="font-size:0.82rem;color:#aaa">(si no hay talles)</span>
+                    </div>
+                </div>
+                <span class="field-error" id="err-stock">Ingresá el stock</span>
+
                 <div class="img-preview" id="preview-prod" onclick="document.getElementById('p-foto').click()">
                     <div class="placeholder"><span>📷</span><small>Clic para seleccionar imagen</small></div>
                 </div>
@@ -979,8 +1022,51 @@
         </div>
     </div>
 
-    <!-- SECCIÓN GESTIÓN DE PRODUCTOS -->
-    <div class="admin-productos-seccion" id="admin-productos-seccion" style="display:none">
+    <!-- SECCIÓN CARGA MASIVA -->
+    <div class="carga-masiva-seccion" id="carga-masiva-seccion" style="display:none">
+        <div class="carga-masiva-header">
+            <h3>⚡ Carga Masiva de Productos</h3>
+            <a id="btn-descargar-plantilla" class="btn-plantilla" download="plantilla_productos_mundo_magico.xlsx">
+                📥 Descargar Plantilla Excel
+            </a>
+        </div>
+        <p style="font-size:0.88rem;color:#888;margin:0 0 14px">
+            Completá la plantilla Excel con tus productos y subila acá. El sistema los carga todos automáticamente.
+        </p>
+
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('bulk-file').click()">
+            <span class="dz-icon">📊</span>
+            <div class="dz-title">Arrastrá tu Excel acá o hacé clic para seleccionar</div>
+            <div class="dz-sub">Formato .xlsx — descargá la plantilla de arriba para empezar</div>
+            <input type="file" id="bulk-file" accept=".xlsx" style="display:none" onchange="procesarExcel(this)">
+        </div>
+
+        <!-- Preview de productos a cargar -->
+        <div id="bulk-preview" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:10px">
+                <div>
+                    <strong id="bulk-count"></strong>
+                    <span style="font-size:0.85rem;color:#aaa;margin-left:8px" id="bulk-err-count"></span>
+                </div>
+                <button class="btn-action" id="btn-subir-masivo" onclick="subirMasivo()" style="width:auto;padding:10px 24px">
+                    🚀 Subir todos los productos
+                </button>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="preview-tabla" id="bulk-tabla"></table>
+            </div>
+            <div class="carga-progress" id="carga-progress" style="display:none">
+                <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#888">
+                    <span>Subiendo productos...</span>
+                    <span id="carga-contador">0 / 0</span>
+                </div>
+                <div class="carga-progress-bar"><div class="carga-progress-fill" id="carga-fill"></div></div>
+            </div>
+            <div class="carga-log" id="carga-log"></div>
+        </div>
+    </div>
+
+</div><!-- fin panel-admin -->
         <div class="admin-productos-header">
             <h3>🗂️ Gestionar Productos</h3>
             <div class="filtro-prod-wrap">
@@ -1036,7 +1122,8 @@
         <div class="file-info" id="edit-foto-info"></div>
         <input type="text" id="edit-nombre" placeholder="Nombre del producto">
         <input type="number" id="edit-precio" placeholder="Precio $" min="0" step="0.01">
-        <input type="number" id="edit-stock" placeholder="Stock disponible" min="0" step="1">
+        <span style="font-size:0.85rem;color:#888;margin:8px 0 4px;display:block">📦 Stock por talle</span>
+        <div id="edit-stock-wrap" style="margin-bottom:10px"></div>
         <select id="edit-categoria">
             <option value="bebe">👶 Bebé</option>
             <option value="ninos">🎈 Niños</option>
@@ -1914,7 +2001,62 @@
     document.getElementById('u-reg-pass')?.addEventListener('keydown', e => { if(e.key === 'Enter') registroCliente(); });
     document.getElementById('user-modal')?.addEventListener('click', e => { if(e.target.id === 'user-modal') cerrarUserModal(); });
 
-    // ─── MODAL DETALLE PRODUCTO ───────────────────────────────
+    // ─── STOCK POR TALLE ──────────────────────────────────────
+    function leerStockFormulario(prefijo, talles, stockActual) {
+        // Si hay talles, leer input por cada talle
+        if (talles.length > 0) {
+            const obj = {};
+            talles.forEach(t => {
+                const input = document.getElementById(`${prefijo}-stock-${t}`);
+                obj[t] = parseInt(input?.value || 0) || 0;
+            });
+            return obj;
+        }
+        // Sin talles: número general
+        const val = parseInt(document.getElementById(`${prefijo}-stock-general`)?.value || 0) || 0;
+        return val;
+    }
+
+    function renderStockGrid(wrapId, talles, stockActual, prefijo) {
+        const wrap = document.getElementById(wrapId);
+        if (!wrap) return;
+        if (!talles || talles.length === 0) {
+            const val = typeof stockActual === 'number' ? stockActual : 0;
+            wrap.innerHTML = `
+                <div class="stock-sin-talles">
+                    <input type="number" id="${prefijo}-stock-general" value="${val}" min="0" step="1" placeholder="Stock total">
+                    <span style="font-size:0.82rem;color:#aaa">unidades totales</span>
+                </div>`;
+        } else {
+            wrap.innerHTML = `<div class="stock-talle-grid">` +
+                talles.map(t => {
+                    const s = (stockActual && typeof stockActual === 'object') ? (stockActual[t] ?? 0) : 0;
+                    return `<div class="stock-talle-row">
+                        <span class="talle-lbl">${t}</span>
+                        <input type="number" id="${prefijo}-stock-${t}" value="${s}" min="0" step="1">
+                        <span style="font-size:0.8rem;color:#aaa">unidades</span>
+                    </div>`;
+                }).join('') + `</div>`;
+        }
+    }
+
+    function getStockBadge(stock, talle) {
+        let cantidad;
+        if (stock === null || stock === undefined) return '';
+        if (typeof stock === 'object') {
+            if (!talle) {
+                // Total general del objeto
+                cantidad = Object.values(stock).reduce((a, b) => a + b, 0);
+            } else {
+                cantidad = stock[talle] ?? 0;
+            }
+        } else {
+            cantidad = stock;
+        }
+        if (cantidad <= 0) return `<span class="stock-badge stock-out">❌ Sin stock</span>`;
+        if (cantidad <= 5) return `<span class="stock-badge stock-low">⚡ ${cantidad} ud.</span>`;
+        return `<span class="stock-badge stock-ok">✅ ${cantidad} ud.</span>`;
+    }
     let prodActual = null;
 
     function abrirProdModal(id) {
@@ -2382,8 +2524,200 @@
 
     // ─── EVENT DELEGATION ─────────────────────────────────────
 
-    // ── Mostrar sección gestión al abrir panel ──────────────
+    // ─── CARGA MASIVA ──────────────────────────────────────────
+    let bulkProductos = [];
+
+    // Cargar SheetJS dinámicamente
+    async function cargarSheetJS() {
+        if (window.XLSX) return;
+        await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+            s.onload = res; s.onerror = rej;
+            document.head.appendChild(s);
+        });
+    }
+
+    // Mostrar sección al abrir panel
+    function mostrarCargaMasiva() {
+        const sec = document.getElementById('carga-masiva-seccion');
+        if (sec) sec.style.display = 'block';
+        // Botón descarga plantilla — usar URL directa
+        const btnPlantilla = document.getElementById('btn-descargar-plantilla');
+        if (btnPlantilla) {
+            btnPlantilla.href = 'plantilla_productos_mundo_magico.xlsx';
+        }
+    }
+
+    // Drag & drop
+    const dropZone = document.getElementById('drop-zone');
+    dropZone?.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone?.addEventListener('drop', e => {
+        e.preventDefault(); dropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) procesarExcel({ files: [file] });
+    });
+
+    window.procesarExcel = async (input) => {
+        const file = input.files[0];
+        if (!file) return;
+        await cargarSheetJS();
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const wb = XLSX.read(e.target.result, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+                // Saltear fila de instrucciones si viene
+                const datos = rows.filter(r =>
+                    r['nombre'] && r['nombre'] !== 'Ej: Body manga corta' &&
+                    !String(r['nombre']).startsWith('Ej:')
+                );
+
+                bulkProductos = datos.map((r, i) => {
+                    const nombre = String(r['nombre'] || '').trim();
+                    const precio = parseFloat(String(r['precio']).replace(/[^0-9.]/g, ''));
+                    const categoria = String(r['categoria'] || '').trim().toLowerCase();
+                    const tallesRaw = String(r['talles'] || '').trim();
+                    const stockRaw = String(r['stock_por_talle'] || '').trim();
+                    const imagen_url = String(r['imagen_url'] || '').trim();
+
+                    const talles = tallesRaw ? tallesRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+                    // Parsear stock
+                    let stock = null;
+                    if (stockRaw) {
+                        if (stockRaw.includes(':')) {
+                            stock = {};
+                            stockRaw.split(',').forEach(par => {
+                                const [t, s] = par.split(':').map(x => x.trim());
+                                if (t && s !== undefined) stock[t] = parseInt(s) || 0;
+                            });
+                        } else if (!isNaN(parseInt(stockRaw))) {
+                            stock = talles.length > 0
+                                ? Object.fromEntries(talles.map(t => [t, parseInt(stockRaw)]))
+                                : parseInt(stockRaw);
+                        }
+                    }
+
+                    const errores = [];
+                    if (!nombre) errores.push('Sin nombre');
+                    if (isNaN(precio) || precio <= 0) errores.push('Precio inválido');
+                    if (!categoria) errores.push('Sin categoría');
+                    if (!imagen_url.startsWith('http')) errores.push('URL inválida');
+
+                    return { nombre, precio, categoria, talles, stock, imagen_url, errores, fila: i + 1 };
+                });
+
+                renderBulkPreview();
+            } catch(err) {
+                mostrarToast('❌ Error al leer el archivo: ' + err.message, 'error', 5000);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
+    function renderBulkPreview() {
+        const preview = document.getElementById('bulk-preview');
+        const tabla = document.getElementById('bulk-tabla');
+        const count = document.getElementById('bulk-count');
+        const errCount = document.getElementById('bulk-err-count');
+        const validos = bulkProductos.filter(p => p.errores.length === 0);
+        const conErrores = bulkProductos.filter(p => p.errores.length > 0);
+
+        preview.style.display = 'block';
+        count.textContent = `${bulkProductos.length} productos encontrados (${validos.length} válidos)`;
+        errCount.textContent = conErrores.length > 0 ? `⚠️ ${conErrores.length} con errores` : '';
+
+        tabla.innerHTML = `
+            <tr>
+                <th>#</th><th>Nombre</th><th>Precio</th><th>Categoría</th>
+                <th>Talles</th><th>Stock</th><th>Estado</th>
+            </tr>
+            ${bulkProductos.map((p, i) => {
+                const estadoBadge = p.errores.length === 0
+                    ? `<span class="badge-ok">✓ OK</span>`
+                    : `<span class="badge-err">✗ ${p.errores.join(', ')}</span>`;
+                const stockStr = p.stock === null ? '—' :
+                    typeof p.stock === 'object' ? Object.entries(p.stock).map(([t,s]) => `${t}:${s}`).join(', ') :
+                    String(p.stock);
+                return `<tr>
+                    <td>${p.fila}</td>
+                    <td><strong>${p.nombre || '—'}</strong></td>
+                    <td>$${isNaN(p.precio) ? '?' : p.precio.toLocaleString('es-AR')}</td>
+                    <td>${p.categoria || '—'}</td>
+                    <td style="font-size:0.75rem">${p.talles.join(', ') || '—'}</td>
+                    <td style="font-size:0.75rem">${stockStr}</td>
+                    <td>${estadoBadge}</td>
+                </tr>`;
+            }).join('')}
+        `;
+    }
+
+    window.subirMasivo = async () => {
+        const validos = bulkProductos.filter(p => p.errores.length === 0);
+        if (!validos.length) { mostrarToast('⚠️ No hay productos válidos para subir', 'warning'); return; }
+
+        const btn = document.getElementById('btn-subir-masivo');
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Subiendo...';
+
+        const progress = document.getElementById('carga-progress');
+        const fill = document.getElementById('carga-fill');
+        const contador = document.getElementById('carga-contador');
+        const log = document.getElementById('carga-log');
+        progress.style.display = 'block';
+        log.classList.add('visible');
+        log.innerHTML = '';
+
+        let ok = 0, err = 0;
+
+        function addLog(msg, tipo = 'info') {
+            log.innerHTML += `<div class="log-${tipo}">${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        addLog(`[INFO] Iniciando carga de ${validos.length} productos...`, 'info');
+
+        for (let i = 0; i < validos.length; i++) {
+            const p = validos[i];
+            contador.textContent = `${i + 1} / ${validos.length}`;
+            fill.style.width = `${((i + 1) / validos.length) * 100}%`;
+
+            try {
+                const { data: inserted, error } = await supabase.from('productos').insert([{
+                    nombre: p.nombre,
+                    precio: p.precio,
+                    categoria: p.categoria,
+                    talles: p.talles.length > 0 ? p.talles : null,
+                    stock: p.stock,
+                    imagen_url: p.imagen_url,
+                    tienda_id: TIENDA_ID
+                }]).select().single();
+
+                if (error) throw error;
+                todosLosProductos.unshift(inserted);
+                ok++;
+                addLog(`[OK] ${p.nombre} — $${p.precio.toLocaleString('es-AR')}`, 'ok');
+            } catch(e) {
+                err++;
+                addLog(`[ERROR] ${p.nombre}: ${e.message}`, 'err');
+            }
+        }
+
+        fill.style.width = '100%';
+        addLog(`\n[COMPLETADO] ${ok} subidos correctamente, ${err} con errores.`, 'info');
+        mostrarToast(`✅ ${ok} productos subidos${err > 0 ? `, ${err} con errores` : ''}`, ok > 0 ? 'success' : 'error', 5000);
+
+        renderProductosInicio();
+        renderAdminProductos();
+        btn.disabled = false;
+        btn.innerHTML = '🚀 Subir todos los productos';
+    };
     window.renderAdminProductos = () => {
+        mostrarCargaMasiva();
         const filtro = document.getElementById('filtro-prod-cat')?.value || '';
         const grid = document.getElementById('productos-admin-grid');
         if (!grid) return;
@@ -2395,11 +2729,7 @@
         }
         const catIcon = { bebe:'👶', ninos:'🎈', colegial:'🎒', complementos:'👜', calzados:'👟', maquillaje:'💄', hogar:'🏠', decoracion:'🎨', iluminacion:'💡', libreria:'📚', cotillon:'🎉', adultos:'👗', perfumes:'🌸', juguetes:'🧸' };
         grid.innerHTML = lista.map(p => {
-            const s = p.stock ?? null;
-            const stockBadge = s === null ? '' :
-                s <= 0 ? `<span class="stock-badge stock-out">Sin stock</span>` :
-                s <= 5 ? `<span class="stock-badge stock-low">⚡ ${s} ud.</span>` :
-                `<span class="stock-badge stock-ok">✅ ${s} ud.</span>`;
+            const stockBadge = getStockBadge(p.stock, null);
             return `
             <div class="prod-admin-card">
                 <img src="${p.imagen_url}" alt="${p.nombre}">
@@ -2452,18 +2782,17 @@
         document.getElementById('edit-img-preview').src = prod.imagen_url;
         document.getElementById('edit-nombre').value = prod.nombre;
         document.getElementById('edit-precio').value = prod.precio;
-        document.getElementById('edit-stock').value = prod.stock ?? 0;
         document.getElementById('edit-categoria').value = prod.categoria;
         document.getElementById('edit-nueva-foto-input').value = '';
         document.getElementById('edit-foto-info').textContent = '';
         document.getElementById('prog-edit').classList.remove('visible');
 
-        // Marcar talles actuales
         const tallesActuales = prod.talles || [];
         document.querySelectorAll('#edit-talles-chips .talle-chip-admin').forEach(chip => {
             chip.classList.toggle('activo', tallesActuales.includes(chip.dataset.talle));
         });
 
+        renderStockGrid('edit-stock-wrap', tallesActuales, prod.stock || null, 'edit');
         document.getElementById('edit-modal').classList.add('active');
     }
 
@@ -2487,10 +2816,10 @@
         const id = document.getElementById('edit-id').value;
         const nombre = document.getElementById('edit-nombre').value.trim();
         const precio = document.getElementById('edit-precio').value;
-        const stock = document.getElementById('edit-stock').value;
         const categoria = document.getElementById('edit-categoria').value;
         const nuevaFoto = document.getElementById('edit-nueva-foto-input').files[0];
         const talles = [...document.querySelectorAll('#edit-talles-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
+        const stock = leerStockFormulario('edit', talles, null);
 
         if (!nombre || !precio) { mostrarToast('⚠️ Completá nombre y precio', 'warning'); return; }
 
@@ -2513,7 +2842,7 @@
             }
 
             const { data: updated, error } = await supabase.from('productos')
-                .update({ nombre, precio: parseFloat(precio), categoria, imagen_url, talles: talles.length > 0 ? talles : null, stock: parseInt(stock) || 0 })
+                .update({ nombre, precio: parseFloat(precio), categoria, imagen_url, talles: talles.length > 0 ? talles : null, stock: stock !== null ? stock : null })
                 .eq('id', id)
                 .select().single();
             if (error) throw error;
@@ -2547,13 +2876,25 @@
             abrirProdModal(card.dataset.id); return;
         }
 
-        // Chip de talle en el modal de EDICIÓN
-        const talleEditChip = e.target.closest('#edit-talles-chips .talle-chip-admin');
-        if (talleEditChip) { talleEditChip.classList.toggle('activo'); return; }
+        // Chip de talle en el panel ADMIN (toggle activo + actualizar stock grid)
+        const talleAdmin = e.target.closest('#talles-admin-chips .talle-chip-admin');
+        if (talleAdmin) {
+            talleAdmin.classList.toggle('activo');
+            const tallesActivos = [...document.querySelectorAll('#talles-admin-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
+            const stockActual = leerStockFormulario('p', tallesActivos, null);
+            renderStockGrid('stock-por-talle-wrap', tallesActivos, typeof stockActual === 'object' ? stockActual : null, 'p');
+            return;
+        }
 
-        // Chip de talle en el panel ADMIN
-        const talleAdmin = e.target.closest('.talle-chip-admin');
-        if (talleAdmin) { talleAdmin.classList.toggle('activo'); return; }
+        // Chip de talle en modal edición (toggle activo + actualizar stock grid edit)
+        const talleEditChip = e.target.closest('#edit-talles-chips .talle-chip-admin');
+        if (talleEditChip) {
+            talleEditChip.classList.toggle('activo');
+            const tallesActivos = [...document.querySelectorAll('#edit-talles-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
+            const prod = todosLosProductos.find(p => String(p.id) === document.getElementById('edit-id').value);
+            renderStockGrid('edit-stock-wrap', tallesActivos, prod?.stock || null, 'edit');
+            return;
+        }
 
         // Botón abrir carrito flotante
         const cartBtn = e.target.closest('.floating-cart');
@@ -2600,16 +2941,15 @@
     window.subirProducto = async () => {
         const nombre = document.getElementById('p-nombre').value.trim();
         const precio = document.getElementById('p-precio').value;
-        const stock = document.getElementById('p-stock').value;
         const categoria = document.getElementById('p-categoria').value;
         const fotoFile = document.getElementById('p-foto').files[0];
         const talles = [...document.querySelectorAll('#talles-admin-chips .talle-chip-admin.activo')].map(c => c.dataset.talle);
+        const stock = leerStockFormulario('p', talles, null);
 
-        limpiarErrores('err-nombre', 'err-precio', 'err-stock', 'err-cat', 'err-foto');
+        limpiarErrores('err-nombre', 'err-precio', 'err-cat', 'err-foto');
         let valido = true;
         if (!nombre) valido = !mostrarError('err-nombre', true);
         if (!precio || isNaN(precio) || Number(precio) < 0) valido = !mostrarError('err-precio', true);
-        if (stock === '' || isNaN(stock) || Number(stock) < 0) valido = !mostrarError('err-stock', true);
         if (!categoria) valido = !mostrarError('err-cat', true);
         if (!fotoFile) valido = !mostrarError('err-foto', true);
         if (!valido) return;
@@ -2632,7 +2972,7 @@
                 nombre, precio: parseFloat(precio), categoria,
                 imagen_url: urlData.publicUrl, tienda_id: TIENDA_ID,
                 talles: talles.length > 0 ? talles : null,
-                stock: parseInt(stock) || 0
+                stock: stock !== null ? stock : null
             };
 
             let { data: inserted, error: insErr } = await supabase.from('productos').insert([insertData]).select().single();
@@ -2657,8 +2997,9 @@
             // Limpiar formulario
             document.getElementById('p-nombre').value = '';
             document.getElementById('p-precio').value = '';
-            document.getElementById('p-stock').value = '';
             document.getElementById('p-categoria').value = '';
+            document.querySelectorAll('#talles-admin-chips .talle-chip-admin.activo').forEach(c => c.classList.remove('activo'));
+            renderStockGrid('stock-por-talle-wrap', [], null, 'p');
             document.getElementById('p-foto').value = '';
             document.getElementById('preview-prod').innerHTML = '<div class="placeholder"><span>📷</span><small>Clic para seleccionar imagen</small></div>';
             document.getElementById('info-prod').textContent = '';
