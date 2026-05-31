@@ -1186,28 +1186,7 @@
         </div>
     </div>
 
-    <!-- SECCIÓN GESTIÓN DE PRODUCTOS -->
-    <div class="admin-productos-seccion" id="admin-productos-seccion" style="display:none">
-        <div class="admin-productos-header">
-            <h3>🗂️ Gestionar Productos</h3>
-            <div class="filtro-prod-wrap">
-                <select id="filtro-prod-cat" onchange="renderAdminProductos()">
-                    <option value="">Todas las categorías</option>
-                    <option value="bebe">👶 Bebé</option>
-                    <option value="ninos">🎈 Niños</option>
-                    <option value="colegial">🎒 Colegial</option>
-                    <option value="complementos">👜 Complementos</option>
-                    <option value="calzados">👟 Calzados</option>
-                    <option value="maquillaje">💄 Maquillaje</option>
-                    <option value="hogar">🏠 Hogar/Bazar</option>
-                    <option value="decoracion">🎨 Decoración</option>
-                    <option value="iluminacion">💡 Iluminación</option>
-                    <option value="libreria">📚 Librería</option>
-                    <option value="cotillon">🎉 Cotillón</option>
-                    <option value="adultos">👗 Adultos</option>
-                    <option value="perfumes">🌸 Perfumes</option>
-                    <option value="juguetes">🧸 Juguetes</option>
-    <!-- SECCIÓN GESTIÓN DE PRODUCTOS — dentro del panel admin, oculta por defecto -->
+    <!-- SECCIÓN GESTIÓN DE PRODUCTOS — oculta por defecto -->
     <div class="admin-productos-seccion" id="admin-productos-seccion" style="display:none">
         <div class="admin-productos-header">
             <h3>🗂️ Gestionar Productos</h3>
@@ -1238,6 +1217,8 @@
 
 </div><!-- fin panel-admin -->
 
+    <h2 id="titulo-seccion"></h2>
+
     <!-- Carrusel por sección -->
     <div class="seccion-carousel-outer" id="seccion-carousel-outer">
         <div class="seccion-slider" id="seccion-slider"></div>
@@ -1248,7 +1229,6 @@
         <p>No hay productos en esta categoría todavía</p>
     </div>
     <div id="catalogo"></div>
-</div>
 
 <!-- MODAL EDITAR PRODUCTO -->
 <div id="edit-modal">
@@ -2920,9 +2900,6 @@
     function mostrarCargaMasiva() {
         const sec = document.getElementById('carga-masiva-seccion');
         if (sec) sec.style.display = 'block';
-        mostrarCargaRapida();
-    }
-        // Botón descarga plantilla — usar URL directa
         const btnPlantilla = document.getElementById('btn-descargar-plantilla');
         if (btnPlantilla) {
             btnPlantilla.href = 'plantilla_productos_mundo_magico.xlsx';
